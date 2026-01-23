@@ -317,19 +317,21 @@ class TicketParser {
                     const depTimeMatch = depLine.match(/(\d{1,2}:\d{2})/);
                     if (depTimeMatch) flight.departureTime = depTimeMatch[1];
 
-                    // Extract city name - look for city after airport name
-                    const depCityMatch = depLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|$)/i);
+                    // Extract city name
+                    // Match pattern: TIME AIRPORT_NAME CITY [Terminal...]
+                    const depCityMatch = depLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|\s*$)/i);
                     if (depCityMatch) {
-                        const fullLocation = depCityMatch[1].trim();
-                        // Extract city: INTL/INTERNATIONAL + CITY or last capital word
+                        let fullLocation = depCityMatch[1].trim();
+
+                        // Extract city from patterns like "HAZRAT SHAHJALAL INTL DHAKA" or "HAMAD INTERNATIONAL DOHA"
                         let cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)/i);
                         if (cityMatch) {
                             flight.from = this.capitalizeCity(cityMatch[1]);
                         } else {
-                            // Try to get last capital word (e.g., "MALPENSA MILAN" -> "MILAN")
+                            // Fallback: get last capital word (e.g., "MALPENSA MILAN" -> "MILAN")
                             const words = fullLocation.split(/\s+/);
                             for (let i = words.length - 1; i >= 0; i--) {
-                                if (/^[A-Z]{2,}$/i.test(words[i])) {
+                                if (words[i] && /^[A-Z]{2,}$/i.test(words[i])) {
                                     flight.from = this.capitalizeCity(words[i]);
                                     break;
                                 }
@@ -348,19 +350,21 @@ class TicketParser {
                     const arrTimeMatch = arrLine.match(/(\d{1,2}:\d{2})/);
                     if (arrTimeMatch) flight.arrivalTime = arrTimeMatch[1];
 
-                    // Extract city name - look for city after airport name
-                    const arrCityMatch = arrLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|$)/i);
+                    // Extract city name
+                    // Match pattern: TIME AIRPORT_NAME CITY [Terminal...]
+                    const arrCityMatch = arrLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|\s*$)/i);
                     if (arrCityMatch) {
-                        const fullLocation = arrCityMatch[1].trim();
-                        // Extract city: INTL/INTERNATIONAL + CITY or last capital word
+                        let fullLocation = arrCityMatch[1].trim();
+
+                        // Extract city from patterns like "HAZRAT SHAHJALAL INTL DHAKA" or "HAMAD INTERNATIONAL DOHA"
                         let cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)/i);
                         if (cityMatch) {
                             flight.to = this.capitalizeCity(cityMatch[1]);
                         } else {
-                            // Try to get last capital word (e.g., "MALPENSA MILAN" -> "MILAN")
+                            // Fallback: get last capital word (e.g., "MALPENSA MILAN" -> "MILAN")
                             const words = fullLocation.split(/\s+/);
                             for (let i = words.length - 1; i >= 0; i--) {
-                                if (/^[A-Z]{2,}$/i.test(words[i])) {
+                                if (words[i] && /^[A-Z]{2,}$/i.test(words[i])) {
                                     flight.to = this.capitalizeCity(words[i]);
                                     break;
                                 }

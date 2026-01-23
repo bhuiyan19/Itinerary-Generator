@@ -65,6 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="ticket-title">Electronic Ticket</div>
             </div>
 
+            <div class="ticket-content">
             <!-- Passenger Information -->
             <div class="ticket-section">
                 <h3>Passenger Information</h3>
@@ -195,6 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
         html += `
                     </tbody>
                 </table>
+            </div>
             </div>
         `;
 

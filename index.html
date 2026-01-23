@@ -11,20 +11,22 @@
 <body>
     <div class="container">
         <header>
-            <div class="logo-section">
-                <h1>goFLY Limited</h1>
-                <p class="tagline">...let you fly</p>
-            </div>
-            <div class="header-info">
-                <p>Office Address: 1/1, Shukrabad, Dhaka 1207</p>
-                <p>(Beside New Model College / Opposite of Metro Shopping Mall)</p>
-                <p>For Support: Ask@goflybd.com | After-Sales: Service@goflybd.com</p>
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1>goFLY Limited</h1>
+                    <p class="tagline">...let you fly</p>
+                </div>
+                <div class="header-info">
+                    <p>Office Address: 1/1, Shukrabad, Dhaka 1207</p>
+                    <p>(Beside New Model College / Opposite of Metro Shopping Mall)</p>
+                    <p>For Support: Ask@goflybd.com | After-Sales: Service@goflybd.com</p>
+                </div>
             </div>
         </header>
 
         <main>
             <div class="input-section">
-                <h2>Paste Your Ticket Data</h2>
+                <h2 class="section-title">Paste Your Ticket Data</h2>
                 <textarea id="ticketInput" placeholder="Copy and paste your ticket information from any vendor here...&#10;&#10;The system will automatically detect and parse:&#10;- Malaysia Airlines tickets&#10;- Qatar Airways tickets&#10;- Novair tickets&#10;- And other formats"></textarea>
                 <div class="button-group">
                     <button id="parseBtn" class="btn btn-primary">Parse & Preview</button>
@@ -33,7 +35,7 @@
             </div>
 
             <div id="previewSection" class="preview-section" style="display: none;">
-                <h2>Preview</h2>
+                <h2 class="section-title">Ticket Preview</h2>
                 <div id="ticketPreview" class="ticket-preview">
                     <!-- Ticket preview will be generated here -->
                 </div>

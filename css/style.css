@@ -1,0 +1,389 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.logo-section h1 {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.tagline {
+    font-size: 1.2em;
+    font-style: italic;
+    opacity: 0.9;
+}
+
+.header-info {
+    text-align: right;
+    font-size: 0.9em;
+}
+
+.header-info p {
+    margin: 3px 0;
+}
+
+main {
+    padding: 30px;
+}
+
+.input-section {
+    margin-bottom: 30px;
+}
+
+.input-section h2 {
+    color: #1e40af;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+#ticketInput {
+    width: 100%;
+    min-height: 300px;
+    padding: 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    resize: vertical;
+    transition: border-color 0.3s;
+}
+
+#ticketInput:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.button-group {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.btn-success {
+    background: #10b981;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.preview-section {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid #e5e7eb;
+}
+
+.preview-section h2 {
+    color: #1e40af;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.ticket-preview {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+/* Ticket Template Styles */
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #3b82f6;
+}
+
+.ticket-company-info h2 {
+    color: #3b82f6;
+    font-size: 2em;
+    margin-bottom: 5px;
+}
+
+.ticket-company-info p {
+    font-size: 0.85em;
+    color: #6b7280;
+    margin: 2px 0;
+}
+
+.ticket-title {
+    background: #3b82f6;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.ticket-section {
+    margin: 25px 0;
+}
+
+.ticket-section h3 {
+    background: #eff6ff;
+    color: #1e40af;
+    padding: 10px 15px;
+    border-left: 4px solid #3b82f6;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.info-item {
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 5px;
+}
+
+.info-label {
+    font-size: 0.85em;
+    color: #6b7280;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    font-size: 1em;
+    color: #111827;
+    font-weight: 500;
+}
+
+.flight-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.flight-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.airline-logo {
+    font-size: 2em;
+}
+
+.flight-basic-info h4 {
+    color: #1e40af;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.flight-route {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 0;
+    padding: 15px;
+    background: white;
+    border-radius: 5px;
+}
+
+.route-point {
+    text-align: center;
+    flex: 1;
+}
+
+.route-arrow {
+    flex: 0 0 60px;
+    text-align: center;
+    font-size: 1.5em;
+    color: #3b82f6;
+}
+
+.route-city {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #111827;
+}
+
+.route-airport {
+    font-size: 0.85em;
+    color: #6b7280;
+    margin: 5px 0;
+}
+
+.route-datetime {
+    font-size: 0.9em;
+    color: #374151;
+    margin-top: 5px;
+}
+
+.flight-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.fare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.fare-table th,
+.fare-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.fare-table th {
+    background: #eff6ff;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.fare-table tr:last-child {
+    font-weight: bold;
+    background: #f0f9ff;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.status-confirmed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.error-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fef2f2;
+    border: 2px solid #fecaca;
+    border-radius: 8px;
+}
+
+.error-message h3 {
+    color: #dc2626;
+    margin-bottom: 10px;
+}
+
+.error-message p {
+    color: #991b1b;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .header-info {
+        text-align: center;
+    }
+
+    .logo-section h1 {
+        font-size: 2em;
+    }
+
+    .ticket-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .flight-route {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .route-arrow {
+        transform: rotate(90deg);
+    }
+}
+
+@media print {
+    body {
+        background: white;
+    }
+
+    .input-section,
+    .button-group {
+        display: none;
+    }
+}

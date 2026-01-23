@@ -1,0 +1,151 @@
+===========================================
+SAMPLE TICKET 1: Malaysia Airlines
+===========================================
+
+goFLY Limited
+Office Address: 1/1, Shukrabad, Dhaka 1207
+(Beside New Model College / Opposite of Metro Shopping Mall)
+For Support: Ask@goflybd.com | After-Sales: Service@goflybd.com
+
+Electronic Ticket
+
+Passenger Information
+Passenger Information    Passport Number    Frequent Flyer Number    Ticket
+FARUK/MD OMAR MR        A06849220                                    2325060086562
+
+Airline PNR                                Galileo PNR          Date of Issue
+E85TGI (MH - Malaysia Airlines)           DF6B4Q               15Sep25
+
+Itinerary Information
+Flight #    From                To                      Depart          Arrive          Seat Info
+Malaysia    Dhaka - Hazrat      Kuala Lumpur -         Thu,            Thu,            Baggage : 25K
+Airlines    Shahjalal Intl      Kuala Lumpur           13 Nov 25       13 Nov 25       Class : O-Economy
+            Arpt, Terminal 1    International Arpt                                      Duration : 4h 0m
+                               , Terminal 1                                             Status : Confirmed
+MH 197                                                 00:50           06:50            Aircraft : Boeing 737MAX 8 Passenger
+                                                                                        Special Svc :
+                                                                                        Fare Basis :
+
+Malaysia    Kuala Lumpur -      Manila - Ninoy         Thu,            Thu,            Baggage : 25K
+Airlines    Kuala Lumpur        Aquino Intl ,          13 Nov 25       13 Nov 25       Class : O-Economy
+            International Arpt  Terminal 1                                              Duration : 3h 50m
+MH 806      , Terminal 1                               08:30           12:20            Status : Confirmed
+                                                                                        Aircraft : Boeing 737MAX 8 Passenger
+                                                                                        Special Svc :
+                                                                                        Fare Basis :
+
+Fare Data
+Fare                263.00 USD
+Equivalent Fare     32213.00 BDT
+Tax                 500BD 25000W 1225P7 1225P8 4000UT 2448MY 2039LI 443E5 2450YQ
+Total               49043.00 BDT
+Tour Code
+
+===========================================
+SAMPLE TICKET 2: Qatar Airways
+===========================================
+
+E-Ticket
+
+GOFLY Limited
+Address: 1/1 Sukrabad, Mirpur Road,
+Beside New Model Degree College
+01713289173
+goflybd@gmail.com
+Booking ID: FST658883329711762784
+Issue Date: 17 Jul, 2025
+
+Reservation PNR: CVGJXD                                                           Confirmed
+
+Passenger Details (02)
+Passenger    Name                          Type              Airline PNR    Ticket No
+01 Primary   Mrs MAHBUBA AFROZ            Adult → Female    7WFBMB         1572I271291521572I2712915
+02           Mr YAMIN SHAHRIAR CHOWDHURY  Adult → Male                     1572I271291501572I2712915I
+
+Flight Details
+
+Dhaka(DAC) → Doha(DOH)
+Qatar Airways | Flight No - 639 | Aircraft Model - Boeing 787-8
+
+Date         Time    Flight Info                          Flight Time Cabin        Baggage
+29 Aug, 2025 04:00   Departs: Dhaka (DAC) | Terminal 1   17H+ 25Min  Economy (L)  Adult → Check-in: 30 Kilograms
+29 Aug, 2025 06:25   Arrival: Doha (DOH)
+
+Doha(DOH) → Lisbon(LIS)
+Qatar Airways | Flight No - 341 | Aircraft Model - Boeing 787-8
+
+Date         Time    Flight Info                          Flight Time Cabin        Baggage
+29 Aug, 2025 10:55   Departs: Doha (DOH)                 17H+ 25Min  Economy (L)  Adult → Check-in: 30 Kilograms
+29 Aug, 2025 16:25   Arrival: Lisbon (LIS) | Terminal: 1
+
+Istanbul(IST) → Doha(DOH)
+Qatar Airways | Flight No - 238 | Aircraft Model - Boeing 787-8
+
+Date         Time    Flight Info                          Flight Time Cabin        Baggage
+09 Sep, 2025 09:50   Departs: Istanbul (IST)             19H+ 40Min  Economy (T)  Adult → Check-in: 25 Kilograms
+09 Sep, 2025 14:15   Arrival: Doha (DOH)
+
+Doha(DOH) → Dhaka(DAC)
+Qatar Airways | Flight No - 638 | Aircraft Model - Boeing 787-8
+
+Date         Time    Flight Info                          Flight Time Cabin        Baggage
+09 Sep, 2025 18:15   Departs: Doha (DOH)                 19H+ 40Min  Economy (T)  Adult → Check-in: 25 Kilograms
+10 Sep, 2025 02:30   Arrival: Dhaka (DAC) | Terminal: 1
+
+Fare Details
+Type     Base Fare    Tax         AIT/VAT    Person    Total
+Adult    130,619.00   25,602.00   0.00       2         330,842.00
+                                             Grand Total BDT 330,842.00
+
+===========================================
+SAMPLE TICKET 3: Novair
+===========================================
+
+GOFLY Limited
+1/1, Shukrabad
+goflybd@gmail.com | +880-1713289173
+Trade License : TRAD/DSCC/302442/2019
+Civil Aviation : 0007726
+
+e-Ticket
+Issue Date: 16 December 2025
+
+Reservation PNR: EJGIPI                                                    Confirmed
+
+Passenger Details (1)
+
+Name                    Ticket No           Baggage
+MD ABDUL AZIZ          855101666079D       Cabin: 7Kg, Checkin: 20KGS
+Adult, Male
+Bangladeshi
+
+DAC ➔ CGP | 18 Dec, Thu | Non-Stop
+
+Novair VQ 909 ATR725 Economy - B EJGIPI Status: S5
+
+13:00                                      2h 55m                          13:55
+Thu, 18 Dec 25                                                             Thu, 18 Dec 25
+Hazrat Shahjalal International Airport (DAC)                               Shah Amanat International (CGP)
+
+Fare Summary
+
+Pax Type    Base Fare    Tax     Other    Pax Count    Amount
+Adult       3824         1125    50       1            BDT 5014
+
+                                          Total AIT & VAT              BDT 15
+                                          Grand Total                  BDT 5014
+
+Important Reminders
+
+Flight Status
+Before your flight, please check your updated flight status on the airline website
+or by calling the airline customer support.
+
+Cabin Class
+Economy
+
+Booking Reference
+GOF2512826917
+
+Ticket Number
+855101666079D

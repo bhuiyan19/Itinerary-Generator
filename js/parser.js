@@ -71,13 +71,12 @@ class TicketParser {
 
     extractIssueDate(text) {
         const patterns = [
-            /Document\s+Issue\s+Date[^\n]*\n[^\n]*\n[^\n]*\n([^\n]+)/i, // For "Document Issue Date" followed by content
+            /Ticketed\s+Date\s*:?\s*(\d{1,2}[A-Za-z]{3}\d{2})/i,
             /Issue\s*Date\s*:?\s*(\d{1,2}\s+\w+,?\s+\d{4})/i,
             /Issue\s*Date\s*:?\s*(\d{1,2}\s+\w+\s+\d{4})/i,
             /(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{2,4})/i,
             /Date\s*of\s*Issue\s*:?\s*(\d{1,2}[A-Za-z]{3}\d{2})/i,
             /Issue\s*Date\s*:?\s*(\d{1,2}\s+[A-Za-z]+\s+\d{2,4})/i,
-            /Ticketed\s+Date\s*:?\s*(\d{1,2}[A-Za-z]{3}\d{2})/i
         ];
 
         for (const pattern of patterns) {
@@ -88,9 +87,10 @@ class TicketParser {
             }
         }
 
-        // If not found, try to extract from context
+        // If not found, try to extract from first few lines (should be near top)
         if (!this.data.issueDate) {
-            const dateMatch = text.match(/(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{2,4})/i);
+            const topLines = text.substring(0, 500); // Check first 500 chars only
+            const dateMatch = topLines.match(/(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{2,4})/i);
             if (dateMatch) {
                 this.data.issueDate = this.formatDate(dateMatch[1]);
             }
@@ -99,19 +99,30 @@ class TicketParser {
 
     extractPassengers(text) {
         // Pattern for "Traveler Ticket Number" format (e.g., "- Mr Md Shifat 157-2132963822 Qatar Airways")
-        const travelerPattern = /[-\s]*(?:Mr|Mrs|Ms|Miss|Dr)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+([\d-]+)/gi;
+        const travelerPattern = /[-\s]*(?:Mr|Mrs|Ms|Miss|Dr)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})\s+(\d{3}-\d{10})/gi;
         const travelerMatches = [...text.matchAll(travelerPattern)];
+
+        const uniquePassengers = new Set();
 
         if (travelerMatches.length > 0) {
             travelerMatches.forEach(match => {
-                this.data.passengers.push({
-                    name: this.cleanName(match[1]),
-                    passport: '',
-                    ticketNumber: match[2].replace(/-/g, ''),
-                    type: 'Adult'
-                });
+                const name = this.cleanName(match[1]);
+                // Only add if not already added (avoid duplicates)
+                if (!uniquePassengers.has(name)) {
+                    uniquePassengers.add(name);
+                    this.data.passengers.push({
+                        name: name,
+                        passport: '',
+                        ticketNumber: match[2].replace(/-/g, ''),
+                        type: 'Adult'
+                    });
+                }
             });
-            return;
+
+            // If we found passengers, return
+            if (this.data.passengers.length > 0) {
+                return;
+            }
         }
 
         // Pattern 3: Table row format
@@ -306,10 +317,15 @@ class TicketParser {
                     const depTimeMatch = depLine.match(/(\d{1,2}:\d{2})/);
                     if (depTimeMatch) flight.departureTime = depTimeMatch[1];
 
-                    const depCityMatch = depLine.match(/(?:\d{1,2}:\d{2})\s+([A-Z\s]+?)(?:Terminal|$)/i);
+                    // Extract city name - look for the last capital word before "Terminal"
+                    const depCityMatch = depLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|$)/i);
                     if (depCityMatch) {
-                        const cityName = depCityMatch[1].trim();
-                        flight.from = cityName.split(/\s{2,}/)[0].trim();
+                        const fullLocation = depCityMatch[1].trim();
+                        // Extract city: take last word or word after INTL/INTERNATIONAL
+                        const cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)|([A-Z]+)\s*$/i);
+                        if (cityMatch) {
+                            flight.from = this.capitalizeCity(cityMatch[1] || cityMatch[2]);
+                        }
                     }
                 }
 
@@ -323,10 +339,15 @@ class TicketParser {
                     const arrTimeMatch = arrLine.match(/(\d{1,2}:\d{2})/);
                     if (arrTimeMatch) flight.arrivalTime = arrTimeMatch[1];
 
-                    const arrCityMatch = arrLine.match(/(?:\d{1,2}:\d{2})\s+([A-Z\s]+?)(?:Terminal|$)/i);
+                    // Extract city name - look for the last capital word before "Terminal"
+                    const arrCityMatch = arrLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|$)/i);
                     if (arrCityMatch) {
-                        const cityName = arrCityMatch[1].trim();
-                        flight.to = cityName.split(/\s{2,}/)[0].trim();
+                        const fullLocation = arrCityMatch[1].trim();
+                        // Extract city: take last word or word after INTL/INTERNATIONAL
+                        const cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)|([A-Z]+)\s*$/i);
+                        if (cityMatch) {
+                            flight.to = this.capitalizeCity(cityMatch[1] || cityMatch[2]);
+                        }
                     }
                 }
 
@@ -509,6 +530,12 @@ class TicketParser {
             .split(' ')
             .map(word => word.charAt(0) + word.slice(1).toLowerCase())
             .join(' ');
+    }
+
+    capitalizeCity(cityName) {
+        if (!cityName) return '';
+        // Capitalize first letter, rest lowercase
+        return cityName.charAt(0).toUpperCase() + cityName.slice(1).toLowerCase();
     }
 
     formatDate(dateStr) {

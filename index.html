@@ -55,13 +55,27 @@
     </div>
 
     <script>
-        // Cache buster - ensure latest version of JS files are loaded
+        // Cache buster - ensure latest version of JS files are loaded in correct order
         const cacheBuster = Date.now();
-        ['js/parser.js', 'js/pdfGenerator.js', 'js/app.js'].forEach(src => {
-            const script = document.createElement('script');
-            script.src = src + '?v=' + cacheBuster;
-            document.body.appendChild(script);
-        });
+
+        // Load parser.js first
+        const parserScript = document.createElement('script');
+        parserScript.src = 'js/parser.js?v=' + cacheBuster;
+        document.body.appendChild(parserScript);
+
+        parserScript.onload = function() {
+            // Load pdfGenerator.js second
+            const pdfScript = document.createElement('script');
+            pdfScript.src = 'js/pdfGenerator.js?v=' + cacheBuster;
+            document.body.appendChild(pdfScript);
+
+            pdfScript.onload = function() {
+                // Load app.js last
+                const appScript = document.createElement('script');
+                appScript.src = 'js/app.js?v=' + cacheBuster;
+                document.body.appendChild(appScript);
+            };
+        };
     </script>
 </body>
 </html>

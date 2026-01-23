@@ -317,14 +317,23 @@ class TicketParser {
                     const depTimeMatch = depLine.match(/(\d{1,2}:\d{2})/);
                     if (depTimeMatch) flight.departureTime = depTimeMatch[1];
 
-                    // Extract city name - look for the last capital word before "Terminal"
+                    // Extract city name - look for city after airport name
                     const depCityMatch = depLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|$)/i);
                     if (depCityMatch) {
                         const fullLocation = depCityMatch[1].trim();
-                        // Extract city: take last word or word after INTL/INTERNATIONAL
-                        const cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)|([A-Z]+)\s*$/i);
+                        // Extract city: INTL/INTERNATIONAL + CITY or last capital word
+                        let cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)/i);
                         if (cityMatch) {
-                            flight.from = this.capitalizeCity(cityMatch[1] || cityMatch[2]);
+                            flight.from = this.capitalizeCity(cityMatch[1]);
+                        } else {
+                            // Try to get last capital word (e.g., "MALPENSA MILAN" -> "MILAN")
+                            const words = fullLocation.split(/\s+/);
+                            for (let i = words.length - 1; i >= 0; i--) {
+                                if (/^[A-Z]{2,}$/i.test(words[i])) {
+                                    flight.from = this.capitalizeCity(words[i]);
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -339,14 +348,23 @@ class TicketParser {
                     const arrTimeMatch = arrLine.match(/(\d{1,2}:\d{2})/);
                     if (arrTimeMatch) flight.arrivalTime = arrTimeMatch[1];
 
-                    // Extract city name - look for the last capital word before "Terminal"
+                    // Extract city name - look for city after airport name
                     const arrCityMatch = arrLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|$)/i);
                     if (arrCityMatch) {
                         const fullLocation = arrCityMatch[1].trim();
-                        // Extract city: take last word or word after INTL/INTERNATIONAL
-                        const cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)|([A-Z]+)\s*$/i);
+                        // Extract city: INTL/INTERNATIONAL + CITY or last capital word
+                        let cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)/i);
                         if (cityMatch) {
-                            flight.to = this.capitalizeCity(cityMatch[1] || cityMatch[2]);
+                            flight.to = this.capitalizeCity(cityMatch[1]);
+                        } else {
+                            // Try to get last capital word (e.g., "MALPENSA MILAN" -> "MILAN")
+                            const words = fullLocation.split(/\s+/);
+                            for (let i = words.length - 1; i >= 0; i--) {
+                                if (/^[A-Z]{2,}$/i.test(words[i])) {
+                                    flight.to = this.capitalizeCity(words[i]);
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -354,8 +372,12 @@ class TicketParser {
                 // Extract duration
                 const durationMatch = flightSection.match(/Duration[^\n]*\n([^\n]+)/i);
                 if (durationMatch) {
-                    const durMatch = durationMatch[1].match(/(\d{2}:\d{2}h)/);
-                    if (durMatch) flight.duration = durMatch[1].replace(/(\d{2}):(\d{2})h/, '$1h $2m');
+                    const durMatch = durationMatch[1].match(/(\d{1,2}):(\d{2})h/);
+                    if (durMatch) {
+                        const hours = parseInt(durMatch[1]);
+                        const mins = parseInt(durMatch[2]);
+                        flight.duration = `${hours}h ${mins}m`;
+                    }
                 }
 
                 // Extract class
@@ -366,9 +388,13 @@ class TicketParser {
                 }
 
                 // Extract aircraft/equipment
-                const equipmentMatch = flightSection.match(/Equipment\s+([\w\s-]+)/i);
+                const equipmentMatch = flightSection.match(/Equipment\s+([^\n]+)/i);
                 if (equipmentMatch) {
-                    flight.aircraft = equipmentMatch[1].trim();
+                    // Clean up - take only the aircraft name, not extra text
+                    let aircraft = equipmentMatch[1].trim();
+                    // Remove any trailing non-aircraft text
+                    aircraft = aircraft.replace(/\s*(Scan|Check-in|Not to be used).*/i, '');
+                    flight.aircraft = aircraft.trim();
                 }
 
                 // Extract baggage

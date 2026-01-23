@@ -52,8 +52,10 @@ class TicketParser {
     extractBookingReference(text) {
         // Try different patterns for booking reference
         const patterns = [
+            /Booking\s+ref\s+([A-Z0-9]+)/i,
             /Reservation\s*PNR\s*:?\s*([A-Z0-9]+)/i,
             /Booking\s*ID\s*:?\s*([A-Z0-9]+)/i,
+            /Booking\s*Reference\s*:?\s*([A-Z0-9]+)/i,
             /PNR\s*:?\s*([A-Z0-9]+)/i,
             /Reservation\s*(?:PNR|Code)\s*:?\s*([A-Z0-9]{6})/i
         ];
@@ -69,10 +71,13 @@ class TicketParser {
 
     extractIssueDate(text) {
         const patterns = [
+            /Document\s+Issue\s+Date[^\n]*\n[^\n]*\n[^\n]*\n([^\n]+)/i, // For "Document Issue Date" followed by content
             /Issue\s*Date\s*:?\s*(\d{1,2}\s+\w+,?\s+\d{4})/i,
             /Issue\s*Date\s*:?\s*(\d{1,2}\s+\w+\s+\d{4})/i,
+            /(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{2,4})/i,
             /Date\s*of\s*Issue\s*:?\s*(\d{1,2}[A-Za-z]{3}\d{2})/i,
-            /Issue\s*Date\s*:?\s*(\d{1,2}\s+[A-Za-z]+\s+\d{2,4})/i
+            /Issue\s*Date\s*:?\s*(\d{1,2}\s+[A-Za-z]+\s+\d{2,4})/i,
+            /Ticketed\s+Date\s*:?\s*(\d{1,2}[A-Za-z]{3}\d{2})/i
         ];
 
         for (const pattern of patterns) {
@@ -93,11 +98,21 @@ class TicketParser {
     }
 
     extractPassengers(text) {
-        // Pattern 1: Passenger Information table format
-        const passengerPattern1 = /(?:Passenger\s*Information|Passenger\s*Details)[\s\S]*?(?:Name|Passenger)[\s\S]*?([A-Z][A-Z\s\/]+?)(?:\s+(?:Adult|Male|Female)|Passport|Type)/gi;
+        // Pattern for "Traveler Ticket Number" format (e.g., "- Mr Md Shifat 157-2132963822 Qatar Airways")
+        const travelerPattern = /[-\s]*(?:Mr|Mrs|Ms|Miss|Dr)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+([\d-]+)/gi;
+        const travelerMatches = [...text.matchAll(travelerPattern)];
 
-        // Pattern 2: Name with passport
-        const passengerPattern2 = /(?:Name|Passenger\s*\d+)\s*[:|\s]\s*([A-Z][A-Z\s]+?)(?:\s+(?:Adult|Male|Female)|Passport|Ticket)/gi;
+        if (travelerMatches.length > 0) {
+            travelerMatches.forEach(match => {
+                this.data.passengers.push({
+                    name: this.cleanName(match[1]),
+                    passport: '',
+                    ticketNumber: match[2].replace(/-/g, ''),
+                    type: 'Adult'
+                });
+            });
+            return;
+        }
 
         // Pattern 3: Table row format
         const lines = text.split('\n');
@@ -111,7 +126,7 @@ class TicketParser {
                 const nameParts = line.trim().split(/\s{2,}|\t/);
                 const name = nameParts[0].trim();
 
-                if (name.length > 3 && !name.match(/^(Passenger|Name|Type|Adult|Male|Female|Flight|Airline)$/i)) {
+                if (name.length > 3 && !name.match(/^(Passenger|Name|Type|Adult|Male|Female|Flight|Airline|Traveler)$/i)) {
                     // Extract passport if on same line
                     let passport = '';
                     const passportMatch = line.match(/[A-Z]{1,2}\d{7,9}/);
@@ -119,11 +134,11 @@ class TicketParser {
                         passport = passportMatch[0];
                     }
 
-                    // Extract ticket number if present
+                    // Extract ticket number if present (with or without hyphens)
                     let ticketNumber = '';
-                    const ticketMatch = line.match(/\d{13,14}/);
+                    const ticketMatch = line.match(/(\d{3}-?\d{10}|\d{13,14})/);
                     if (ticketMatch) {
-                        ticketNumber = ticketMatch[0];
+                        ticketNumber = ticketMatch[1].replace(/-/g, '');
                     }
 
                     // Extract type (Adult/Child)
@@ -150,7 +165,7 @@ class TicketParser {
 
             for (const match of nameMatches) {
                 const name = match[1].trim();
-                if (name.length > 5 && !name.match(/GOFLY|LIMITED|AIRLINE|PASSENGER|INFORMATION/)) {
+                if (name.length > 5 && !name.match(/GOFLY|LIMITED|AIRLINE|PASSENGER|INFORMATION|TRAVELS|HORIZON/)) {
                     uniqueNames.add(name);
                 }
             }
@@ -252,7 +267,101 @@ class TicketParser {
     }
 
     extractFlightsFromTable(text) {
-        // Look for flight table patterns
+        // Look for pattern like "Qatar Airways QR 639"
+        const flightHeaderPattern = /(Qatar Airways|Malaysia Airlines|Novair|Emirates|Singapore Airlines|Thai Airways|Air Asia)\s+([A-Z]{2}\s*\d{2,4})/gi;
+        const flightHeaders = [...text.matchAll(flightHeaderPattern)];
+
+        if (flightHeaders.length > 0) {
+            flightHeaders.forEach(headerMatch => {
+                const startIdx = headerMatch.index;
+                const nextFlightIdx = text.indexOf('Airways', startIdx + 10);
+                const sectionEnd = nextFlightIdx > 0 ? nextFlightIdx : text.length;
+                const flightSection = text.substring(startIdx, sectionEnd);
+
+                const flight = {
+                    airline: headerMatch[1],
+                    flightNumber: headerMatch[2].replace(/\s+/g, ''),
+                    from: '',
+                    fromCode: '',
+                    to: '',
+                    toCode: '',
+                    departureDate: '',
+                    departureTime: '',
+                    arrivalDate: '',
+                    arrivalTime: '',
+                    duration: '',
+                    aircraft: '',
+                    class: 'Economy',
+                    status: 'Confirmed',
+                    baggage: ''
+                };
+
+                // Extract departure info
+                const departureMatch = flightSection.match(/Departure[^\n]*\n([^\n]+)/i);
+                if (departureMatch) {
+                    const depLine = departureMatch[1];
+                    const depDateMatch = depLine.match(/(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i);
+                    if (depDateMatch) flight.departureDate = this.formatDate(depDateMatch[1]);
+
+                    const depTimeMatch = depLine.match(/(\d{1,2}:\d{2})/);
+                    if (depTimeMatch) flight.departureTime = depTimeMatch[1];
+
+                    const depCityMatch = depLine.match(/(?:\d{1,2}:\d{2})\s+([A-Z\s]+?)(?:Terminal|$)/i);
+                    if (depCityMatch) {
+                        const cityName = depCityMatch[1].trim();
+                        flight.from = cityName.split(/\s{2,}/)[0].trim();
+                    }
+                }
+
+                // Extract arrival info
+                const arrivalMatch = flightSection.match(/Arrival[^\n]*\n([^\n]+)/i);
+                if (arrivalMatch) {
+                    const arrLine = arrivalMatch[1];
+                    const arrDateMatch = arrLine.match(/(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i);
+                    if (arrDateMatch) flight.arrivalDate = this.formatDate(arrDateMatch[1]);
+
+                    const arrTimeMatch = arrLine.match(/(\d{1,2}:\d{2})/);
+                    if (arrTimeMatch) flight.arrivalTime = arrTimeMatch[1];
+
+                    const arrCityMatch = arrLine.match(/(?:\d{1,2}:\d{2})\s+([A-Z\s]+?)(?:Terminal|$)/i);
+                    if (arrCityMatch) {
+                        const cityName = arrCityMatch[1].trim();
+                        flight.to = cityName.split(/\s{2,}/)[0].trim();
+                    }
+                }
+
+                // Extract duration
+                const durationMatch = flightSection.match(/Duration[^\n]*\n([^\n]+)/i);
+                if (durationMatch) {
+                    const durMatch = durationMatch[1].match(/(\d{2}:\d{2}h)/);
+                    if (durMatch) flight.duration = durMatch[1].replace(/(\d{2}):(\d{2})h/, '$1h $2m');
+                }
+
+                // Extract class
+                const classMatch = flightSection.match(/Class[^\n]*\n([^\n]+)/i);
+                if (classMatch) {
+                    const cls = classMatch[1].match(/(Economy|Business|First)/i);
+                    if (cls) flight.class = cls[1];
+                }
+
+                // Extract aircraft/equipment
+                const equipmentMatch = flightSection.match(/Equipment\s+([\w\s-]+)/i);
+                if (equipmentMatch) {
+                    flight.aircraft = equipmentMatch[1].trim();
+                }
+
+                // Extract baggage
+                const baggageMatch = flightSection.match(/Baggage\s+Allowance\s+(\d+K)/i);
+                if (baggageMatch) {
+                    flight.baggage = baggageMatch[1] + 'G';
+                }
+
+                this.data.flights.push(flight);
+            });
+            return;
+        }
+
+        // Fallback to original pattern
         const flightPattern = /([A-Z]{2,3})\s*\d{2,4}[\s\S]{0,200}?([A-Z][a-z]+)[\s\S]{0,50}?([A-Z][a-z]+)[\s\S]{0,100}?(\d{1,2}:\d{2})/gi;
         const matches = [...text.matchAll(flightPattern)];
 
@@ -280,6 +389,7 @@ class TicketParser {
     extractFare(text) {
         // Extract base fare
         const baseFarePatterns = [
+            /Air\s+Fare\s*:?\s*(?:BDT|USD|EUR)?\s*(\d+(?:,\d{3})*(?:\.\d{2})?)/i,
             /Base\s*Fare\s*:?\s*(\d+(?:,\d{3})*(?:\.\d{2})?)\s*(BDT|USD|EUR)?/i,
             /Fare\s*:?\s*(\d+(?:,\d{3})*(?:\.\d{2})?)\s*(BDT|USD|EUR)?/i,
         ];
@@ -293,8 +403,13 @@ class TicketParser {
             }
         }
 
-        // Extract tax
+        // Extract currency if found with Air Fare
+        const currencyMatch = text.match(/Air\s+Fare\s*:?\s*(BDT|USD|EUR)/i);
+        if (currencyMatch) this.data.fare.currency = currencyMatch[1];
+
+        // Extract tax (handle multiple BDT entries)
         const taxPatterns = [
+            /Tax\s*:?\s*((?:BDT\s+[\dA-Z]+\s*)+)/i,
             /Tax\s*:?\s*(\d+(?:,\d{3})*(?:\.\d{2})?)/i,
             /AIT\s*[&\/]\s*VAT\s*:?\s*(\d+(?:,\d{3})*(?:\.\d{2})?)/i,
         ];
@@ -302,13 +417,25 @@ class TicketParser {
         for (const pattern of taxPatterns) {
             const match = text.match(pattern);
             if (match) {
-                this.data.fare.tax = match[1].replace(/,/g, '');
+                const taxStr = match[1];
+                // If it contains multiple BDT entries, sum them up
+                if (taxStr.includes('BDT')) {
+                    const amounts = taxStr.matchAll(/(\d+)[A-Z]{0,2}/g);
+                    let total = 0;
+                    for (const amt of amounts) {
+                        total += parseInt(amt[1]);
+                    }
+                    this.data.fare.tax = total.toString();
+                } else {
+                    this.data.fare.tax = taxStr.replace(/,/g, '');
+                }
                 break;
             }
         }
 
-        // Extract total
+        // Extract total (handle newline before colon)
         const totalPatterns = [
+            /Total\s+Amount\s*[\n\s]*:?\s*(?:BDT|USD|EUR)?\s*(\d+(?:,\d{3})*(?:\.\d{2})?)/i,
             /(?:Grand\s*)?Total\s*:?\s*(\d+(?:,\d{3})*(?:\.\d{2})?)\s*(BDT|USD|EUR)?/i,
             /Total\s*(?:Amount|Fare)\s*:?\s*(\d+(?:,\d{3})*(?:\.\d{2})?)\s*(BDT|USD|EUR)?/i,
         ];
@@ -324,10 +451,18 @@ class TicketParser {
     }
 
     extractPNRs(text) {
+        // Airline Booking Reference (e.g., "QR/7P8LNW")
+        const airlineBookingRefMatch = text.match(/Airline\s+Booking\s+Reference\s+([A-Z]{2})\/([A-Z0-9]{6})/i);
+        if (airlineBookingRefMatch) {
+            this.data.airlinePNR = airlineBookingRefMatch[2];
+        }
+
         // Airline PNR
-        const airlinePNRMatch = text.match(/Airline\s*PNR\s*:?\s*([A-Z0-9]{6})/i);
-        if (airlinePNRMatch) {
-            this.data.airlinePNR = airlinePNRMatch[1];
+        if (!this.data.airlinePNR) {
+            const airlinePNRMatch = text.match(/Airline\s*PNR\s*:?\s*([A-Z0-9]{6})/i);
+            if (airlinePNRMatch) {
+                this.data.airlinePNR = airlinePNRMatch[1];
+            }
         }
 
         // Galileo PNR
@@ -336,11 +471,12 @@ class TicketParser {
             this.data.galileoPNR = galileoPNRMatch[1];
         }
 
-        // Extract all ticket numbers
-        const ticketNumbers = text.matchAll(/\b\d{13,14}\b/g);
+        // Extract all ticket numbers (with or without hyphens)
+        const ticketNumbers = text.matchAll(/\b(\d{3}-\d{10}|\d{13,14})\b/g);
         for (const match of ticketNumbers) {
-            if (!this.data.ticketNumbers.includes(match[0])) {
-                this.data.ticketNumbers.push(match[0]);
+            const cleanNumber = match[1].replace(/-/g, '');
+            if (!this.data.ticketNumbers.includes(cleanNumber)) {
+                this.data.ticketNumbers.push(cleanNumber);
             }
         }
     }

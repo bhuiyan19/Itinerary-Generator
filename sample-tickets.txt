@@ -149,3 +149,84 @@ GOF2512826917
 
 Ticket Number
 855101666079D
+
+===========================================
+SAMPLE TICKET 4: Qatar Airways (DYNAMIC TRAVELS)
+===========================================
+
+Electronic Ticket Receipt Booking ref 7P6MEI CheckMyTrip App
+22 January 26
+Document Issue Date Baggage
+Agency DYNAMIC TRAVELS
+Agent 2235
+BASHATI HORIZON,APT NO.A-7
+HOUSE NO.21
+ROAD NO.17,BANANI C/A, DHAKA
+MOCAT#0004617,TRAD/DNCC/09728
+1/2018
+Telephone 02 222274217
+Email ticket@dynamic.com.bd
+IATA 42302676
+
+Traveler Ticket Number Issuing Airline
+- Mr Md Shifat 157-2132963822 Qatar Airways
+
+Itinerary
+
+Thursday 05 February 2026
+Qatar Airways QR 639 (Operated By Qatar Airways, QR)
+Departure
+05 February 19:15 HAZRAT SHAHJALAL INTL DHAKA Terminal : 1
+Arrival
+05 February 22:20 HAMAD INTERNATIONAL DOHA
+Duration
+06:05h (Non Stop)
+Flight Distance 3,909.00 km
+Class
+Economy (N)
+Booking Status
+Confirmed
+Equipment Boeing 777-300Er
+Scan for check-in. Not to be used
+Check-in
+Airline Contact Hazrat Shahjalal Intl - +880 2 989 0024
+as boarding pass.
+Hamad International - +974 4449 6666
+Baggage Allowance 25K for Mr Md Shifat
+Flight Meal Meal
+
+Friday 06 February 2026
+Qatar Airways QR 123 (Operated By Qatar Airways, QR)
+Departure
+06 February 02:35 HAMAD INTERNATIONAL DOHA
+Arrival
+06 February 06:55 MALPENSA MILAN Terminal : 1
+Duration
+06:20h (Non Stop)
+Flight Distance 4,421.00 km
+Class
+Economy (N)
+Booking Status
+Confirmed
+Equipment Airbus A350-900
+Scan for check-in. Not to be used
+Check-in
+Airline Contact Hamad International - +974 4449 6666
+as boarding pass.
+Baggage Allowance 25K for Mr Md Shifat
+Flight Meal Meal
+
+At check-in, you must show a photo ID.
+Please check airline's check-in procedures for this itinerary.
+Airline Booking Reference QR/7P8LNW
+Receipt
+Ticket number : 157-2132963822 Mr Md Shifat Ticketed Date: 22Jan26
+Form of payment : CASH
+Air Fare : BDT 94364
+Tax : BDT 500BD BDT 444E5 BDT 4000OW
+BDT 1228P7 BDT 1228P8 BDT 6000UT
+BDT 2022G4 BDT 184PZ BDT 2022QA
+BDT 337R9
+Total Amount
+: BDT 112329
+Issuing Airline : QATAR AIRWAYS

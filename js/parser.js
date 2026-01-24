@@ -18,6 +18,87 @@ class TicketParser {
             galileoPNR: '',
             ticketNumbers: []
         };
+
+        // Airport code to city name mapping
+        this.airportCodes = {
+            'DAC': 'Dhaka',
+            'DOH': 'Doha',
+            'HKG': 'Hong Kong',
+            'NRT': 'Tokyo',
+            'IAD': 'Washington',
+            'JFK': 'New York',
+            'SPD': 'Saidpur',
+            'CXB': 'Cox\'s Bazar',
+            'JSR': 'Jashore',
+            'RJH': 'Rajshahi',
+            'ZYL': 'Sylhet',
+            'CGP': 'Chittagong',
+            'DXB': 'Dubai',
+            'KWI': 'Kuwait',
+            'BAH': 'Bahrain',
+            'RUH': 'Riyadh',
+            'JED': 'Jeddah',
+            'MCT': 'Muscat',
+            'ABU': 'Abu Dhabi',
+            'SIN': 'Singapore',
+            'BKK': 'Bangkok',
+            'KUL': 'Kuala Lumpur',
+            'DMK': 'Bangkok',
+            'DEL': 'New Delhi',
+            'BOM': 'Mumbai',
+            'CCU': 'Kolkata',
+            'MAA': 'Chennai',
+            'LHR': 'London',
+            'MAN': 'Manchester',
+            'CDG': 'Paris',
+            'FRA': 'Frankfurt',
+            'AMS': 'Amsterdam',
+            'FCO': 'Rome',
+            'MXP': 'Milan',
+            'MAD': 'Madrid',
+            'BCN': 'Barcelona',
+            'IST': 'Istanbul',
+            'ATH': 'Athens',
+            'VIE': 'Vienna',
+            'ZRH': 'Zurich',
+            'CPH': 'Copenhagen',
+            'SVO': 'Moscow',
+            'PEK': 'Beijing',
+            'PVG': 'Shanghai',
+            'CAN': 'Guangzhou',
+            'ICN': 'Seoul',
+            'KIX': 'Osaka',
+            'HND': 'Tokyo',
+            'TPE': 'Taipei',
+            'MNL': 'Manila',
+            'CGK': 'Jakarta',
+            'SYD': 'Sydney',
+            'MEL': 'Melbourne',
+            'AKL': 'Auckland',
+            'LAX': 'Los Angeles',
+            'SFO': 'San Francisco',
+            'ORD': 'Chicago',
+            'MIA': 'Miami',
+            'ATL': 'Atlanta',
+            'BOS': 'Boston',
+            'SEA': 'Seattle',
+            'YYZ': 'Toronto',
+            'YVR': 'Vancouver',
+            'YUL': 'Montreal',
+            'GRU': 'Sao Paulo',
+            'EZE': 'Buenos Aires',
+            'GIG': 'Rio de Janeiro',
+            'MEX': 'Mexico City',
+            'BOG': 'Bogota',
+            'LIM': 'Lima',
+            'SCL': 'Santiago',
+            'CAI': 'Cairo',
+            'JNB': 'Johannesburg',
+            'NBO': 'Nairobi',
+            'ADD': 'Addis Ababa',
+            'LOS': 'Lagos',
+            'ACC': 'Accra'
+        };
     }
 
     parse() {
@@ -50,33 +131,42 @@ class TicketParser {
     }
 
     extractBookingReference(text) {
-        // Try different patterns for booking reference
+        // Try different patterns for booking reference with flexible field names
         const patterns = [
-            /Booking\s+ref\s+([A-Z0-9]+)/i,
-            /Reservation\s*PNR\s*:?\s*([A-Z0-9]+)/i,
-            /Booking\s*ID\s*:?\s*([A-Z0-9]+)/i,
-            /Booking\s*Reference\s*:?\s*([A-Z0-9]+)/i,
-            /PNR\s*:?\s*([A-Z0-9]+)/i,
-            /Reservation\s*(?:PNR|Code)\s*:?\s*([A-Z0-9]{6})/i
+            /Booking\s+ref(?:erence)?\s*:?\s*([A-Z0-9]{5,8})/i,
+            /Reservation\s*(?:PNR|Code|ID|Number)\s*:?\s*([A-Z0-9]{5,8})/i,
+            /Booking\s*(?:ID|Number|Code)\s*:?\s*([A-Z0-9]{5,8})/i,
+            /(?:e-?ticket|E-?Ticket)\s*(?:Number|ID)?\s*:?\s*([A-Z0-9]{5,8})/i,
+            /PNR\s*(?:Number|Code|ID)?\s*:?\s*([A-Z0-9]{5,8})/i,
+            /Supplier\s*(?:Ref|Reference)\s*:?\s*([A-Z0-9]{5,8})/i,
+            /GDS\s*(?:Ref|Reference|PNR)\s*:?\s*([A-Z0-9]{5,8})/i,
+            // Pattern for embedded in text like "Booking ref 7P6MEI"
+            /\b([A-Z0-9]{6})\b/  // Last resort: 6-character alphanumeric code
         ];
 
         for (const pattern of patterns) {
             const match = text.match(pattern);
             if (match) {
-                this.data.bookingReference = match[1].trim();
-                break;
+                const ref = match[1].trim();
+                // Validate it looks like a booking reference (mix of letters and numbers, or all letters)
+                if (/[A-Z]/.test(ref) && ref.length >= 5) {
+                    this.data.bookingReference = ref;
+                    break;
+                }
             }
         }
     }
 
     extractIssueDate(text) {
         const patterns = [
-            /Ticketed\s+Date\s*:?\s*(\d{1,2}[A-Za-z]{3}\d{2})/i,
-            /Issue\s*Date\s*:?\s*(\d{1,2}\s+\w+,?\s+\d{4})/i,
-            /Issue\s*Date\s*:?\s*(\d{1,2}\s+\w+\s+\d{4})/i,
+            /Ticketed\s+(?:Date|On)\s*:?\s*(\d{1,2}[A-Za-z]{3}\d{2,4})/i,
+            /(?:Issue|Issued|Issuance)\s*Date\s*:?\s*(\d{1,2}\s+\w+,?\s+\d{2,4})/i,
+            /Date\s*of\s*(?:Issue|Issuance)\s*:?\s*(\d{1,2}\s*[A-Za-z]{3,}\s*\d{2,4})/i,
+            /Document\s+Issue\s+Date\s*:?\s*(\d{1,2}\s+[A-Za-z]+\s+\d{2,4})/i,
+            /Ticket\s+Issue\s+Date\s*:?\s*(\d{1,2}\s+[A-Za-z]+\s+\d{2,4})/i,
             /(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{2,4})/i,
-            /Date\s*of\s*Issue\s*:?\s*(\d{1,2}[A-Za-z]{3}\d{2})/i,
-            /Issue\s*Date\s*:?\s*(\d{1,2}\s+[A-Za-z]+\s+\d{2,4})/i,
+            // Compact format like "23Jan26" or "14Jan2026"
+            /\b(\d{1,2}[A-Za-z]{3}\d{2,4})\b/,
         ];
 
         for (const pattern of patterns) {
@@ -89,7 +179,7 @@ class TicketParser {
 
         // If not found, try to extract from first few lines (should be near top)
         if (!this.data.issueDate) {
-            const topLines = text.substring(0, 500); // Check first 500 chars only
+            const topLines = text.substring(0, 800); // Check first 800 chars
             const dateMatch = topLines.match(/(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{2,4})/i);
             if (dateMatch) {
                 this.data.issueDate = this.formatDate(dateMatch[1]);
@@ -314,16 +404,19 @@ class TicketParser {
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
 
-            // Pattern: City -> City with airline
-            const routePattern = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*(?:\(([A-Z]{3})\))?\s*(?:->|→|➔)\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*(?:\(([A-Z]{3})\))?/;
+            // Pattern: City -> City with airline (can also be codes like DAC -> DOH)
+            const routePattern = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?|[A-Z]{3})\s*(?:\(([A-Z]{3})\))?\s*(?:->|→|➔|-)\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?|[A-Z]{3})\s*(?:\(([A-Z]{3})\))?/;
             const routeMatch = line.match(routePattern);
 
             if (routeMatch) {
+                const fromLocation = routeMatch[1].trim();
+                const toLocation = routeMatch[3].trim();
+
                 const flight = {
-                    from: routeMatch[1].trim(),
-                    fromCode: routeMatch[2] || '',
-                    to: routeMatch[3].trim(),
-                    toCode: routeMatch[4] || '',
+                    from: this.resolveLocation(fromLocation),
+                    fromCode: routeMatch[2] || (fromLocation.length === 3 ? fromLocation : ''),
+                    to: this.resolveLocation(toLocation),
+                    toCode: routeMatch[4] || (toLocation.length === 3 ? toLocation : ''),
                     airline: '',
                     flightNumber: '',
                     departureDate: '',
@@ -424,18 +517,28 @@ class TicketParser {
                 baggage: ''
             };
 
-            // Extract cities from format: "Dhaka - Hazrat Shahjalal Intl Arpt"
+            // Extract cities from format: "Dhaka - Hazrat Shahjalal Intl Arpt" or "DOH - HKG"
             const cityPattern = /([A-Za-z\s]+?)\s*-\s*([A-Za-z\s]+?(?:Intl|International)?\s*Arpt)/gi;
             const cityMatches = [...block.matchAll(cityPattern)];
 
             if (cityMatches.length >= 2) {
                 // First match is departure city
                 const depCity = cityMatches[0][1].trim();
-                flight.from = this.extractCityName(depCity);
+                flight.from = this.resolveLocation(this.extractCityName(depCity));
 
                 // Second match is arrival city
                 const arrCity = cityMatches[1][1].trim();
-                flight.to = this.extractCityName(arrCity);
+                flight.to = this.resolveLocation(this.extractCityName(arrCity));
+            } else {
+                // Try simpler pattern for airport codes like "DAC - DOH"
+                const codePattern = /\b([A-Z]{3})\s*[-–]\s*([A-Z]{3})\b/;
+                const codeMatch = block.match(codePattern);
+                if (codeMatch) {
+                    flight.from = this.resolveLocation(codeMatch[1]);
+                    flight.fromCode = codeMatch[1];
+                    flight.to = this.resolveLocation(codeMatch[2]);
+                    flight.toCode = codeMatch[2];
+                }
             }
 
             // Extract dates in format "Tue, 10 Feb 26" or "10 Feb 26"
@@ -545,7 +648,7 @@ class TicketParser {
                         flight.departureTime = depTimeMatch[1];
                     }
 
-                    // Extract city name
+                    // Extract city name or airport code
                     // Match pattern: TIME AIRPORT_NAME CITY [Terminal...]
                     const depCityMatch = depLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|\s*$)/i);
                     if (depCityMatch) {
@@ -554,13 +657,18 @@ class TicketParser {
                         // Extract city from patterns like "HAZRAT SHAHJALAL INTL DHAKA" or "HAMAD INTERNATIONAL DOHA"
                         let cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)/i);
                         if (cityMatch) {
-                            flight.from = this.capitalizeCity(cityMatch[1]);
+                            flight.from = this.resolveLocation(cityMatch[1]);
+                            flight.fromCode = cityMatch[1].length === 3 ? cityMatch[1] : '';
                         } else {
-                            // Fallback: get last capital word (e.g., "MALPENSA MILAN" -> "MILAN")
+                            // Fallback: get last capital word (could be city name or code)
                             const words = fullLocation.split(/\s+/);
                             for (let i = words.length - 1; i >= 0; i--) {
                                 if (words[i] && /^[A-Z]{2,}$/i.test(words[i])) {
-                                    flight.from = this.capitalizeCity(words[i]);
+                                    const resolved = this.resolveLocation(words[i]);
+                                    flight.from = resolved;
+                                    if (words[i].length === 3) {
+                                        flight.fromCode = words[i];
+                                    }
                                     break;
                                 }
                             }
@@ -583,7 +691,7 @@ class TicketParser {
                         flight.arrivalTime = arrTimeMatch[1];
                     }
 
-                    // Extract city name
+                    // Extract city name or airport code
                     // Match pattern: TIME AIRPORT_NAME CITY [Terminal...]
                     const arrCityMatch = arrLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|\s*$)/i);
                     if (arrCityMatch) {
@@ -592,13 +700,18 @@ class TicketParser {
                         // Extract city from patterns like "HAZRAT SHAHJALAL INTL DHAKA" or "HAMAD INTERNATIONAL DOHA"
                         let cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)/i);
                         if (cityMatch) {
-                            flight.to = this.capitalizeCity(cityMatch[1]);
+                            flight.to = this.resolveLocation(cityMatch[1]);
+                            flight.toCode = cityMatch[1].length === 3 ? cityMatch[1] : '';
                         } else {
-                            // Fallback: get last capital word (e.g., "MALPENSA MILAN" -> "MILAN")
+                            // Fallback: get last capital word (could be city name or code)
                             const words = fullLocation.split(/\s+/);
                             for (let i = words.length - 1; i >= 0; i--) {
                                 if (words[i] && /^[A-Z]{2,}$/i.test(words[i])) {
-                                    flight.to = this.capitalizeCity(words[i]);
+                                    const resolved = this.resolveLocation(words[i]);
+                                    flight.to = resolved;
+                                    if (words[i].length === 3) {
+                                        flight.toCode = words[i];
+                                    }
                                     break;
                                 }
                             }
@@ -735,24 +848,43 @@ class TicketParser {
     }
 
     extractPNRs(text) {
-        // Airline Booking Reference (e.g., "QR/7P8LNW")
-        const airlineBookingRefMatch = text.match(/Airline\s+Booking\s+Reference\s+([A-Z]{2})\/([A-Z0-9]{6})/i);
-        if (airlineBookingRefMatch) {
-            this.data.airlinePNR = airlineBookingRefMatch[2];
-        }
+        // Airline PNR - try multiple field name variations
+        const airlinePNRPatterns = [
+            /Airline\s+Booking\s+Reference\s+(?:[A-Z]{2}\/)? ?([A-Z0-9]{5,7})/i,
+            /Airline\s*(?:PNR|Ref|Reference|Code)\s*:?\s*([A-Z0-9]{5,7})/i,
+            /Airlines?\s*(?:PNR|Ref|Reference)\s*:?\s*([A-Z0-9]{5,7})/i,
+            /(?:Carrier|Vendor)\s*(?:PNR|Ref|Reference)\s*:?\s*([A-Z0-9]{5,7})/i,
+        ];
 
-        // Airline PNR
-        if (!this.data.airlinePNR) {
-            const airlinePNRMatch = text.match(/Airline\s*PNR\s*:?\s*([A-Z0-9]{6})/i);
-            if (airlinePNRMatch) {
-                this.data.airlinePNR = airlinePNRMatch[1];
+        for (const pattern of airlinePNRPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                this.data.airlinePNR = match[1].trim();
+                break;
             }
         }
 
-        // Galileo PNR
-        const galileoPNRMatch = text.match(/Galileo\s*PNR\s*:?\s*([A-Z0-9]{6})/i);
-        if (galileoPNRMatch) {
-            this.data.galileoPNR = galileoPNRMatch[1];
+        // GDS/Galileo/Supplier PNR - try multiple field name variations
+        const gdsPNRPatterns = [
+            /Galileo\s*(?:PNR|Ref|Reference)\s*:?\s*([A-Z0-9]{5,7})/i,
+            /GDS\s*(?:PNR|Ref|Reference)\s*:?\s*([A-Z0-9]{5,7})/i,
+            /Supplier\s*(?:PNR|Ref|Reference)\s*:?\s*([A-Z0-9]{5,7})/i,
+            /(?:Amadeus|Sabre|Worldspan)\s*(?:PNR|Ref|Reference)\s*:?\s*([A-Z0-9]{5,7})/i,
+            /System\s*(?:PNR|Ref|Reference)\s*:?\s*([A-Z0-9]{5,7})/i,
+        ];
+
+        for (const pattern of gdsPNRPatterns) {
+            const match = text.match(pattern);
+            if (match) {
+                this.data.galileoPNR = match[1].trim();
+                break;
+            }
+        }
+
+        // If galileoPNR not found but we have a booking reference and no airline PNR,
+        // use booking reference as galileoPNR
+        if (!this.data.galileoPNR && this.data.bookingReference && !this.data.airlinePNR) {
+            this.data.galileoPNR = this.data.bookingReference;
         }
 
         // Extract all ticket numbers (with or without hyphens)
@@ -800,6 +932,23 @@ class TicketParser {
         if (!cityName) return '';
         // Capitalize first letter, rest lowercase
         return cityName.charAt(0).toUpperCase() + cityName.slice(1).toLowerCase();
+    }
+
+    // Resolve airport code to city name, or return the input if it's already a city name
+    resolveLocation(location) {
+        if (!location) return '';
+
+        const cleanLoc = location.trim().toUpperCase();
+
+        // Check if it's a 3-letter airport code
+        if (cleanLoc.length === 3 && /^[A-Z]{3}$/.test(cleanLoc)) {
+            if (this.airportCodes[cleanLoc]) {
+                return this.airportCodes[cleanLoc];
+            }
+        }
+
+        // Otherwise, it's probably a city name already, so capitalize it properly
+        return this.capitalizeCity(location);
     }
 
     formatDate(dateStr) {

@@ -116,51 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         html += `
                     </tbody>
-                </table>`;
-
-        // Fare Information
-        html += `
-            <div class="ticket-section">
-                <h3>Fare Information</h3>
-                <table class="fare-table">
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th style="text-align: right;">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-
-        if (data.fare.baseFare) {
-            html += `
-                        <tr>
-                            <td>Base Fare</td>
-                            <td style="text-align: right;">${formatCurrency(data.fare.baseFare, data.fare.currency)}</td>
-                        </tr>
-            `;
-        }
-
-        if (data.fare.tax) {
-            html += `
-                        <tr>
-                            <td>Tax & Fees</td>
-                            <td style="text-align: right;">${formatCurrency(data.fare.tax, data.fare.currency)}</td>
-                        </tr>
-            `;
-        }
-
-        if (data.fare.total) {
-            html += `
-                        <tr>
-                            <td><strong>Total Amount</strong></td>
-                            <td style="text-align: right;"><strong>${formatCurrency(data.fare.total, data.fare.currency)}</strong></td>
-                        </tr>
-            `;
-        }
-
-        html += `
-                    </tbody>
                 </table>
 
                 <!-- Traveler Details -->

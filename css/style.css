@@ -454,15 +454,32 @@ main {
     z-index: 1;
 }
 
-.route-arrow {
-    flex: 0 0 80px;
+.route-connector {
+    flex: 0 0 120px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 2;
+}
+
+.route-arrow {
     font-size: 2.5em;
     color: var(--primary-blue);
     font-weight: bold;
-    position: relative;
-    z-index: 2;
     animation: pulse 2s infinite;
+}
+
+.route-duration {
+    font-size: 0.85em;
+    color: var(--text-gray);
+    font-weight: 600;
+    background: white;
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
 }
 
 @keyframes pulse {
@@ -478,22 +495,38 @@ main {
     font-size: 2em;
     font-weight: 800;
     color: var(--text-dark);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-family: 'Poppins', sans-serif;
 }
 
-.route-airport {
-    font-size: 0.9em;
+.route-code {
+    font-size: 0.85em;
     color: var(--text-gray);
-    margin: 8px 0;
-    font-weight: 500;
+    font-weight: 600;
+    background: white;
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 10px;
 }
 
 .route-datetime {
+    margin-top: 12px;
+}
+
+.route-date {
     font-size: 1em;
+    color: var(--primary-dark);
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.route-time {
+    font-size: 1.4em;
     color: var(--text-dark);
-    margin-top: 10px;
-    font-weight: 600;
+    font-weight: 800;
+    font-family: 'Poppins', sans-serif;
 }
 
 .flight-details-grid {

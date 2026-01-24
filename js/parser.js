@@ -99,7 +99,8 @@ class TicketParser {
 
     extractPassengers(text) {
         // Pattern 1: DYNAMIC TRAVELS format - "ISLAM/MD MOKARREMUL MR Passport Number 541642217 Ticket 1575060704563"
-        const dynamicPattern = /Passenger Information\s+([A-Z\/\s]+?)\s+(?:MR|MRS|MS|MISS|DR)\s+Passport\s+Number\s+[\d]+\s+(?:Frequent Flyer\s+Number\s+)?Ticket\s+(\d+)/i;
+        // Note: Sometimes "Passenger Information" appears twice (as header and in data row), so we make it optional
+        const dynamicPattern = /Passenger Information\s+(?:Passenger Information\s+)?([A-Z\/\s]+?)\s+(?:MR|MRS|MS|MISS|DR)\s+Passport\s+Number\s+[\d]+\s+(?:Frequent Flyer\s+Number\s+)?Ticket\s+(\d+)/i;
         const dynamicMatch = text.match(dynamicPattern);
 
         if (dynamicMatch) {

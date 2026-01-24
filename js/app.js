@@ -208,7 +208,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return `
             <div class="flight-card">
                 <div class="flight-header">
-                    <div class="airline-logo">✈️</div>
                     <div class="flight-basic-info">
                         <h4>Flight ${flightNum}: ${flight.airline || 'Airline'} ${flight.flightNumber || ''}</h4>
                         ${flight.status ? `<span class="status-badge status-confirmed">${flight.status}</span>` : ''}
@@ -218,18 +217,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flight-route">
                     <div class="route-point">
                         <div class="route-city">${flight.from || 'Origin'}</div>
-                        ${flight.fromCode ? `<div class="route-airport">${flight.fromCode}</div>` : ''}
-                        ${flight.departureDate ? `<div class="route-datetime">${flight.departureDate}</div>` : ''}
-                        ${flight.departureTime ? `<div class="route-datetime">${flight.departureTime}</div>` : ''}
+                        ${flight.fromCode ? `<div class="route-code">${flight.fromCode}</div>` : ''}
+                        <div class="route-datetime">
+                            ${flight.departureDate ? `<div class="route-date">${flight.departureDate}</div>` : ''}
+                            ${flight.departureTime ? `<div class="route-time">${flight.departureTime}</div>` : ''}
+                        </div>
                     </div>
 
-                    <div class="route-arrow">→</div>
+                    <div class="route-connector">
+                        <div class="route-arrow">✈</div>
+                        ${flight.duration ? `<div class="route-duration">${flight.duration}</div>` : ''}
+                    </div>
 
                     <div class="route-point">
                         <div class="route-city">${flight.to || 'Destination'}</div>
-                        ${flight.toCode ? `<div class="route-airport">${flight.toCode}</div>` : ''}
-                        ${flight.arrivalDate ? `<div class="route-datetime">${flight.arrivalDate}</div>` : ''}
-                        ${flight.arrivalTime ? `<div class="route-datetime">${flight.arrivalTime}</div>` : ''}
+                        ${flight.toCode ? `<div class="route-code">${flight.toCode}</div>` : ''}
+                        <div class="route-datetime">
+                            ${flight.arrivalDate ? `<div class="route-date">${flight.arrivalDate}</div>` : ''}
+                            ${flight.arrivalTime ? `<div class="route-time">${flight.arrivalTime}</div>` : ''}
+                        </div>
                     </div>
                 </div>
 
@@ -238,12 +244,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="info-item">
                             <div class="info-label">Class</div>
                             <div class="info-value">${flight.class}</div>
-                        </div>
-                    ` : ''}
-                    ${flight.duration ? `
-                        <div class="info-item">
-                            <div class="info-label">Duration</div>
-                            <div class="info-value">${flight.duration}</div>
                         </div>
                     ` : ''}
                     ${flight.aircraft ? `
@@ -256,6 +256,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="info-item">
                             <div class="info-label">Baggage</div>
                             <div class="info-value">${flight.baggage}</div>
+                        </div>
+                    ` : ''}
+                    ${flight.status ? `
+                        <div class="info-item">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">${flight.status}</div>
                         </div>
                     ` : ''}
                 </div>

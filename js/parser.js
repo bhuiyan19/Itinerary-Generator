@@ -97,6 +97,73 @@ class TicketParser {
         }
     }
 
+    // Helper to identify garbage lines (company info, headers, etc.)
+    isGarbageLine(line) {
+        const garbagePatterns = [
+            /trade\s+license/i,
+            /email:/i,
+            /tel:/i,
+            /business\s+hours/i,
+            /iata\s+number/i,
+            /mocat\s+registration/i,
+            /^electronic\s+ticket$/i,
+            /^passenger\s+information$/i,
+            /^itinerary\s+information$/i,
+            /^flight\s*#/i,
+            /^from\s+to\s+depart/i,
+            /galileo\s+pnr/i,
+            /airline\s+pnr/i,
+            /date\s+of\s+issue/i,
+            /baggage\s*:/i,
+            /class\s*:/i,
+            /duration\s*:/i,
+            /status\s*:/i,
+            /aircraft\s*:/i,
+            /terminal\s+\d/i,
+            /intl\s+arpt/i,
+            /international\s+arpt/i,
+            /seat\s+info/i,
+            /^number$/i,
+            /^ticket$/i,
+            /^passport$/i,
+            /^\s*$/,  // empty lines
+            /www\./i,
+            /\.com/i,
+            /@/,  // email addresses
+            /\+\d{1,3}\s*\d/,  // phone numbers
+        ];
+
+        return garbagePatterns.some(pattern => pattern.test(line));
+    }
+
+    // Helper to validate if a string is a real passenger name
+    isValidPassengerName(name) {
+        // Must be at least 2 words
+        const words = name.trim().split(/\s+/);
+        if (words.length < 2) return false;
+
+        // Must be reasonable length
+        if (name.length < 5 || name.length > 50) return false;
+
+        // Skip common non-name patterns
+        const invalidPatterns = [
+            /^(passenger|name|type|adult|male|female|flight|airline|traveler|information)$/i,
+            /trade\s+license/i,
+            /bashati|horizon|banani|block/i,
+            /email|business|hours|number/i,
+            /dynamic\s+travels/i,
+            /\d{4,}/,  // contains long numbers
+            /@/,  // email
+            /www\./i,  // website
+            /\.com/i,
+            /pnr|galileo/i,
+            /ticket.*number/i,
+            /^[A-Z]+$/,  // all caps single word
+        ];
+
+        return !invalidPatterns.some(pattern => pattern.test(name));
+    }
+
     extractPassengers(text) {
         // Pattern 1: DYNAMIC TRAVELS format - "ISLAM/MD MOKARREMUL MR Passport Number 541642217 Ticket 1575060704563"
         // Note: Sometimes "Passenger Information" appears twice (as header and in data row), so we make it optional
@@ -148,19 +215,24 @@ class TicketParser {
             }
         }
 
-        // Pattern 3: Table row format
+        // Pattern 3: Table row format with intelligent filtering
         const lines = text.split('\n');
         let foundPassengers = false;
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
 
+            // Skip garbage lines
+            if (this.isGarbageLine(line)) {
+                continue;
+            }
+
             // Look for passenger name patterns
             if (/^(?:Mrs?|Mr|Ms|Miss|Dr)?\s*[A-Z][A-Z\s]+(?:[A-Z]{2,})/i.test(line)) {
                 const nameParts = line.trim().split(/\s{2,}|\t/);
                 const name = nameParts[0].trim();
 
-                if (name.length > 3 && !name.match(/^(Passenger|Name|Type|Adult|Male|Female|Flight|Airline|Traveler)$/i)) {
+                if (this.isValidPassengerName(name)) {
                     // Extract passport if on same line
                     let passport = '';
                     const passportMatch = line.match(/[A-Z]{1,2}\d{7,9}/);
@@ -192,14 +264,14 @@ class TicketParser {
             }
         }
 
-        // If no passengers found, try simpler pattern
+        // If no passengers found, try simpler pattern with filtering
         if (this.data.passengers.length === 0) {
             const nameMatches = text.matchAll(/(?:Mrs?|Ms|Miss|Dr)?\s*([A-Z]{2,}(?:\s+[A-Z]{2,})+)/g);
             const uniqueNames = new Set();
 
             for (const match of nameMatches) {
                 const name = match[1].trim();
-                if (name.length > 5 && !name.match(/GOFLY|LIMITED|AIRLINE|PASSENGER|INFORMATION|TRAVELS|HORIZON/)) {
+                if (this.isValidPassengerName(name)) {
                     uniqueNames.add(name);
                 }
             }
@@ -305,11 +377,11 @@ class TicketParser {
 
         // Pattern: Qatar Airways QR 639 followed by route info
         // Looking for airline name on one line, flight number on next line or same line
-        const flightBlocks = text.split(/(?=Qatar Airways|Malaysia Airlines|Novair|Emirates|Singapore Airlines|Thai Airways|Air Asia)/gi);
+        const flightBlocks = text.split(/(?=Qatar Airways|Malaysia Airlines|Novair|Emirates|Singapore Airlines|Thai Airways|Air Asia|Biman Bangladesh)/gi);
 
         for (const block of flightBlocks) {
             // Must contain airline name and QR/MH etc code
-            const airlineMatch = block.match(/(Qatar Airways|Malaysia Airlines|Novair|Emirates|Singapore Airlines|Thai Airways|Air Asia)/i);
+            const airlineMatch = block.match(/(Qatar Airways|Malaysia Airlines|Novair|Emirates|Singapore Airlines|Thai Airways|Air Asia|Biman Bangladesh)/i);
             const flightNumMatch = block.match(/([A-Z]{2})\s*(\d{3,4})/);
 
             if (!airlineMatch || !flightNumMatch) continue;
@@ -410,7 +482,7 @@ class TicketParser {
         }
 
         // Look for pattern like "Qatar Airways QR 639"
-        const flightHeaderPattern = /(Qatar Airways|Malaysia Airlines|Novair|Emirates|Singapore Airlines|Thai Airways|Air Asia)\s+([A-Z]{2}\s*\d{2,4})/gi;
+        const flightHeaderPattern = /(Qatar Airways|Malaysia Airlines|Novair|Emirates|Singapore Airlines|Thai Airways|Air Asia|Biman Bangladesh)\s+([A-Z]{2}\s*\d{2,4})/gi;
         const flightHeaders = [...text.matchAll(flightHeaderPattern)];
 
         if (flightHeaders.length > 0) {
@@ -677,6 +749,7 @@ class TicketParser {
         const airlines = [
             'Qatar Airways',
             'Malaysia Airlines',
+            'Biman Bangladesh',
             'Novair',
             'Emirates',
             'Singapore Airlines',

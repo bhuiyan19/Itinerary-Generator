@@ -55,97 +55,60 @@ document.addEventListener('DOMContentLoaded', function() {
     // Generate HTML preview
     function generatePreview(data) {
         let html = `
-            <div class="ticket-header">
-                <div class="ticket-company-info">
-                    <h2>goFLY Limited</h2>
-                    <p>Office Address: 1/1, Shukrabad, Dhaka 1207</p>
-                    <p>(Beside New Model College / Opposite of Metro Shopping Mall)</p>
-                    <p>For Support: Ask@goflybd.com | After-Sales: Service@goflybd.com</p>
+            <div class="ticket-wrapper">
+                <!-- Logo and Header -->
+                <div class="ticket-logo-header">
+                    <img src="https://goflybd.com/wp-content/uploads/2023/07/goFLY-logo.png.webp" alt="goFLY" class="company-logo">
+                    <div class="ticket-scan-section">
+                        <div class="scan-placeholder">
+                            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                                <rect x="10" y="10" width="60" height="60" fill="#10b981" opacity="0.2"/>
+                                <text x="40" y="45" text-anchor="middle" font-size="10" fill="#10b981">QR CODE</text>
+                            </svg>
+                        </div>
+                        <p class="scan-text">Scan me</p>
+                    </div>
                 </div>
-                <div class="ticket-title">Electronic Ticket</div>
-            </div>
 
-            <div class="ticket-content">
-            <!-- Passenger Information -->
-            <div class="ticket-section">
-                <h3>Passenger Information</h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">Booking Reference</div>
-                        <div class="info-value">${data.bookingReference || 'N/A'}</div>
+                <!-- Booking Information -->
+                <div class="info-grid-modern">
+                    <div class="info-box">
+                        <div class="info-label-modern">Booking ID</div>
+                        <div class="info-value-modern">${data.bookingReference || 'N/A'}</div>
                     </div>
-                    <div class="info-item">
-                        <div class="info-label">Issue Date</div>
-                        <div class="info-value">${data.issueDate || 'N/A'}</div>
+                    <div class="info-box">
+                        <div class="info-label-modern">Issue Date</div>
+                        <div class="info-value-modern">${data.issueDate || 'N/A'}</div>
                     </div>
+                    <div class="info-box">
+                        <div class="info-label-modern">Airlines PNR</div>
+                        <div class="info-value-modern">${data.airlinePNR || 'N/A'}</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label-modern">GDS/Supplier Ref.</div>
+                        <div class="info-value-modern">${data.galileoPNR || 'N/A'}</div>
+                    </div>
+                </div>
         `;
 
-        if (data.airlinePNR) {
-            html += `
-                    <div class="info-item">
-                        <div class="info-label">Airline PNR</div>
-                        <div class="info-value">${data.airlinePNR}</div>
-                    </div>
-            `;
-        }
-
-        if (data.galileoPNR) {
-            html += `
-                    <div class="info-item">
-                        <div class="info-label">Galileo PNR</div>
-                        <div class="info-value">${data.galileoPNR}</div>
-                    </div>
-            `;
-        }
-
-        html += `</div>`;
-
-        // Passenger list
-        if (data.passengers && data.passengers.length > 0) {
-            html += `
-                <table class="fare-table" style="margin-top: 15px;">
+        // Flight Details Table
+        html += `
+                <div class="section-title-modern">Flight Details</div>
+                <table class="flight-details-table">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Passenger Name</th>
-                            <th>Type</th>
-                            <th>Passport</th>
-                            <th>Ticket Number</th>
+                            <th>Flight Number</th>
+                            <th>Departure</th>
+                            <th>Arrival</th>
+                            <th>Duration</th>
                         </tr>
                     </thead>
                     <tbody>
-            `;
-
-            data.passengers.forEach((passenger, index) => {
-                html += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${passenger.name}</td>
-                        <td>${passenger.type}</td>
-                        <td>${passenger.passport || 'N/A'}</td>
-                        <td>${passenger.ticketNumber || data.ticketNumbers[index] || 'N/A'}</td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                    </tbody>
-                </table>
-            `;
-        }
-
-        html += `</div>`;
-
-        // Flight Itinerary
-        html += `
-            <div class="ticket-section">
-                <h3>Itinerary Information</h3>
         `;
 
         if (data.flights && data.flights.length > 0) {
             data.flights.forEach((flight, index) => {
-                html += generateFlightCard(flight, index + 1);
-            });
+                html += generateFlightRow(flight, data);
         } else {
             html += `<p style="color: #6b7280; font-style: italic;">No flight information available</p>`;
         }
@@ -196,11 +159,120 @@ document.addEventListener('DOMContentLoaded', function() {
         html += `
                     </tbody>
                 </table>
-            </div>
+
+                <!-- Traveler Details -->
+                <div class="section-title-modern">Traveler Details</div>
+                <table class="traveler-table">
+                    <thead>
+                        <tr>
+                            <th>Passenger Name</th>
+                            <th>Baggage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        if (data.passengers && data.passengers.length > 0) {
+            data.passengers.forEach((passenger, index) => {
+                const baggage = data.flights[0]?.baggage || 'Included';
+                html += `
+                    <tr>
+                        <td>
+                            <strong>${passenger.type}</strong><br>
+                            ${passenger.name}
+                            ${passenger.passport ? `<br><small>Document: ${passenger.passport}</small>` : ''}
+                            ${passenger.ticketNumber ? `<br><small>Ticket No: ${passenger.ticketNumber}</small>` : ''}
+                        </td>
+                        <td>
+                            <strong>Baggage Allowance (Included Baggage):</strong><br>
+                            ${data.flights.map(f => `${f.from || 'DAC'} to ${f.to || 'Destination'}: ${f.baggage || baggage}`).join('<br>')}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        html += `
+                    </tbody>
+                </table>
+
+                <!-- Fare Information -->
+                <div class="section-title-modern">Fare Information</div>
+                <table class="fare-table-modern">
+                    <tbody>
+        `;
+
+        if (data.fare.baseFare) {
+            html += `<tr><td>Base Fare</td><td class="text-right">${formatCurrency(data.fare.baseFare, data.fare.currency)}</td></tr>`;
+        }
+        if (data.fare.tax) {
+            html += `<tr><td>Tax & Fees</td><td class="text-right">${formatCurrency(data.fare.tax, data.fare.currency)}</td></tr>`;
+        }
+        if (data.fare.total) {
+            html += `<tr class="total-row"><td><strong>Total Amount</strong></td><td class="text-right"><strong>${formatCurrency(data.fare.total, data.fare.currency)}</strong></td></tr>`;
+        }
+
+        html += `
+                    </tbody>
+                </table>
+
+                <!-- Remarks -->
+                <div class="remarks-section">
+                    <h4>Remarks</h4>
+                    <div class="remarks-content">
+                        <strong>Flight Notes:</strong>
+                        <ul>
+                            <li>At check-in, please show a Photo ID Proof and the document you gave for reference at reservation time.</li>
+                            <li>Specific rules and restrictions may apply to this fare.</li>
+                            <li>Taxes are included except where local airport taxes are collected at check-in time.</li>
+                            <li>In case of international travel please ensure that your passport is valid for at least 6 months in advance and you have all valid visa for your trip.</li>
+                        </ul>
+                        <strong>CHECK-IN AT AIRPORT:</strong>
+                        <p>Please report at check-in counter of airline at airport at least 3 Hrs prior to flight departure for International flights and 2 Hrs prior for within country flights.</p>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="ticket-footer">
+                    <div class="footer-contact">
+                        <div><strong>Customer Service:</strong> support@goflybd.com</div>
+                        <div><strong>Helpline:</strong> 09639203090</div>
+                        <div><strong>Office:</strong> 1 Shukrabad Road Motiur Nibash, Beside New Model Degree College, Opposite of Metro Shopping Mall, Dhaka, 1207</div>
+                    </div>
+                </div>
             </div>
         `;
 
         ticketPreview.innerHTML = html;
+    }
+
+    // Generate flight row for table
+    function generateFlightRow(flight, ticketData) {
+        const airlineLogo = `<div class="airline-logo-small">${flight.airline?.substring(0, 2) || 'XX'}</div>`;
+
+        return `
+            <tr>
+                <td>
+                    ${airlineLogo}
+                    <strong>${flight.airline || 'Airline'}-${flight.flightNumber || 'XXX'}</strong>
+                    ${flight.aircraft ? `<br><small>${flight.aircraft}</small>` : ''}
+                    ${flight.class ? `<br><small>Class: ${flight.class}</small>` : ''}
+                </td>
+                <td>
+                    <strong>${flight.fromCode || flight.from || 'DAC'}</strong><br>
+                    ${flight.departureDate || 'N/A'}<br>
+                    ${flight.departureTime || 'N/A'}<br>
+                    ${flight.fromTerminal ? `Terminal ${flight.fromTerminal}` : ''}
+                </td>
+                <td>
+                    <strong>${flight.toCode || flight.to || 'Destination'}</strong><br>
+                    ${flight.arrivalDate || 'N/A'}<br>
+                    ${flight.arrivalTime || 'N/A'}<br>
+                    ${flight.toTerminal ? `Terminal ${flight.toTerminal}` : ''}
+                </td>
+                <td>${flight.duration || 'N/A'}</td>
+            </tr>
+        `;
     }
 
     // Generate flight card HTML

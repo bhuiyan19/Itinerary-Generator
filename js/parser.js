@@ -149,12 +149,16 @@ class TicketParser {
         const words = name.trim().split(/\s+/);
         if (words.length < 2) return false;
 
+        // Each word must be at least 3 letters (reject "Pm Iata", "Bdt Bd")
+        const hasShortWords = words.some(word => word.length < 3);
+        if (hasShortWords) return false;
+
         // Must be reasonable length
-        if (name.length < 5 || name.length > 50) return false;
+        if (name.length < 7 || name.length > 50) return false;
 
         // Skip common non-name patterns
         const invalidPatterns = [
-            /^(passenger|name|type|adult|male|female|flight|airline|traveler|information)$/i,
+            /^(passenger|name|type|adult|male|female|flight|airline|traveler|information|please|read)$/i,
             /trade\s+license/i,
             /bashati|horizon|banani|block/i,
             /email|business|hours|number/i,
@@ -163,7 +167,7 @@ class TicketParser {
             /@/,  // email
             /www\./i,  // website
             /\.com/i,
-            /pnr|galileo/i,
+            /pnr|galileo|iata/i,
             /ticket.*number/i,
             /^[A-Z]+$/,  // all caps single word
             /:/,  // contains colon (CSS property)
@@ -174,6 +178,7 @@ class TicketParser {
             /var|transform|margin|padding|border|font|color|width|height|display/i,  // CSS keywords
             /px|em|rem|%|vh|vw/i,  // CSS units
             /#[0-9a-f]{3,6}/i,  // CSS color codes
+            /^(bdt|bd|pm|am|usd|eur)$/i,  // Currency codes and time indicators
         ];
 
         return !invalidPatterns.some(pattern => pattern.test(name));

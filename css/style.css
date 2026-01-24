@@ -1,10 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
 
 :root {
-    --primary-blue: #2563eb;
-    --primary-dark: #1e40af;
-    --primary-light: #3b82f6;
+    --primary-mint: #10b981;
+    --mint-dark: #059669;
+    --mint-light: #d1fae5;
     --accent-orange: #f97316;
+    --orange-light: #fed7aa;
     --bg-gradient-start: #667eea;
     --bg-gradient-end: #764ba2;
     --text-dark: #111827;
@@ -14,8 +15,6 @@
     --bg-white: #ffffff;
     --border-light: #e5e7eb;
     --border-medium: #d1d5db;
-    --success-green: #10b981;
-    --success-light: #d1fae5;
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -753,4 +752,227 @@ main {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* Modern Professional Ticket Styles */
+.ticket-wrapper {
+    background: var(--bg-white);
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.ticket-logo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid var(--primary-mint);
+}
+
+.company-logo {
+    max-width: 150px;
+    height: auto;
+}
+
+.ticket-scan-section {
+    text-align: center;
+}
+
+.scan-placeholder {
+    background: var(--mint-light);
+    border: 2px dashed var(--primary-mint);
+    border-radius: var(--radius-md);
+    padding: 10px;
+}
+
+.scan-text {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-gray);
+    font-weight: 600;
+}
+
+.info-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.info-box {
+    background: linear-gradient(135deg, var(--mint-light) 0%, var(--bg-light) 100%);
+    padding: 15px;
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--primary-mint);
+}
+
+.info-label-modern {
+    font-size: 12px;
+    color: var(--text-gray);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.info-value-modern {
+    font-size: 16px;
+    color: var(--text-dark);
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+}
+
+.section-title-modern {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 25px 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-mint);
+    font-family: 'Poppins', sans-serif;
+}
+
+.flight-details-table,
+.traveler-table,
+.fare-table-modern {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.flight-details-table thead,
+.traveler-table thead {
+    background: linear-gradient(135deg, var(--primary-mint) 0%, var(--mint-dark) 100%);
+    color: white;
+}
+
+.flight-details-table th,
+.traveler-table th,
+.fare-table-modern th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.flight-details-table td,
+.traveler-table td,
+.fare-table-modern td {
+    padding: 15px;
+    border-top: 1px solid var(--border-light);
+    font-size: 14px;
+}
+
+.flight-details-table tbody tr:hover,
+.traveler-table tbody tr:hover {
+    background: var(--mint-light);
+}
+
+.airline-logo-small {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background: var(--accent-orange);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 40px;
+    font-weight: 700;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.fare-table-modern tbody tr.total-row {
+    background: var(--mint-light);
+    font-size: 16px;
+}
+
+.fare-table-modern .text-right {
+    text-align: right;
+}
+
+.remarks-section {
+    background: var(--bg-light);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin: 25px 0;
+}
+
+.remarks-section h4 {
+    color: var(--primary-mint);
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.remarks-content {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-gray);
+}
+
+.remarks-content ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.remarks-content li {
+    margin-bottom: 8px;
+}
+
+.remarks-content strong {
+    color: var(--text-dark);
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.ticket-footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid var(--primary-mint);
+    text-align: center;
+}
+
+.footer-contact {
+    font-size: 13px;
+    color: var(--text-gray);
+    line-height: 1.8;
+}
+
+.footer-contact div {
+    margin-bottom: 5px;
+}
+
+.footer-contact strong {
+    color: var(--text-dark);
+}
+
+/* Update existing button styles with mint green */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-mint) 0%, var(--mint-dark) 100%);
+    border-color: var(--primary-mint);
+}
+
+.btn-primary:hover {
+    background: var(--mint-dark);
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--accent-orange) 0%, #ea580c 100%);
+    border-color: var(--accent-orange);
+}
+
+.btn-success:hover {
+    background: #ea580c;
+    transform: translateY(-2px);
 }

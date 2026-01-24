@@ -282,12 +282,17 @@ class TicketParser {
         const flightHeaderPattern = /(Qatar Airways|Malaysia Airlines|Novair|Emirates|Singapore Airlines|Thai Airways|Air Asia)\s+([A-Z]{2}\s*\d{2,4})/gi;
         const flightHeaders = [...text.matchAll(flightHeaderPattern)];
 
+        console.log('Flight headers found:', flightHeaders.length);
+
         if (flightHeaders.length > 0) {
-            flightHeaders.forEach(headerMatch => {
+            flightHeaders.forEach((headerMatch, idx) => {
                 const startIdx = headerMatch.index;
-                const nextFlightIdx = text.indexOf('Airways', startIdx + 10);
-                const sectionEnd = nextFlightIdx > 0 ? nextFlightIdx : text.length;
-                const flightSection = text.substring(startIdx, sectionEnd);
+                // Find next flight header or end of text
+                const nextHeaderIdx = flightHeaders[idx + 1] ? flightHeaders[idx + 1].index : text.length;
+                const flightSection = text.substring(startIdx, nextHeaderIdx);
+
+                console.log(`\n=== Flight ${idx + 1} Section ===`);
+                console.log(flightSection.substring(0, 500));
 
                 const flight = {
                     airline: headerMatch[1],
@@ -309,30 +314,45 @@ class TicketParser {
 
                 // Extract departure info
                 const departureMatch = flightSection.match(/Departure[^\n]*\n([^\n]+)/i);
+                console.log('Departure match:', departureMatch ? departureMatch[1] : 'NOT FOUND');
+
                 if (departureMatch) {
                     const depLine = departureMatch[1];
+                    console.log('Departure line:', depLine);
+
                     const depDateMatch = depLine.match(/(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i);
-                    if (depDateMatch) flight.departureDate = this.formatDate(depDateMatch[1]);
+                    if (depDateMatch) {
+                        flight.departureDate = this.formatDate(depDateMatch[1]);
+                        console.log('Departure date:', flight.departureDate);
+                    }
 
                     const depTimeMatch = depLine.match(/(\d{1,2}:\d{2})/);
-                    if (depTimeMatch) flight.departureTime = depTimeMatch[1];
+                    if (depTimeMatch) {
+                        flight.departureTime = depTimeMatch[1];
+                        console.log('Departure time:', flight.departureTime);
+                    }
 
                     // Extract city name
                     // Match pattern: TIME AIRPORT_NAME CITY [Terminal...]
                     const depCityMatch = depLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|\s*$)/i);
+                    console.log('City match result:', depCityMatch ? depCityMatch[1] : 'NO MATCH');
+
                     if (depCityMatch) {
                         let fullLocation = depCityMatch[1].trim();
+                        console.log('Full location:', fullLocation);
 
                         // Extract city from patterns like "HAZRAT SHAHJALAL INTL DHAKA" or "HAMAD INTERNATIONAL DOHA"
                         let cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)/i);
                         if (cityMatch) {
                             flight.from = this.capitalizeCity(cityMatch[1]);
+                            console.log('From (INTL pattern):', flight.from);
                         } else {
                             // Fallback: get last capital word (e.g., "MALPENSA MILAN" -> "MILAN")
                             const words = fullLocation.split(/\s+/);
                             for (let i = words.length - 1; i >= 0; i--) {
                                 if (words[i] && /^[A-Z]{2,}$/i.test(words[i])) {
                                     flight.from = this.capitalizeCity(words[i]);
+                                    console.log('From (fallback):', flight.from);
                                     break;
                                 }
                             }
@@ -342,30 +362,45 @@ class TicketParser {
 
                 // Extract arrival info
                 const arrivalMatch = flightSection.match(/Arrival[^\n]*\n([^\n]+)/i);
+                console.log('Arrival match:', arrivalMatch ? arrivalMatch[1] : 'NOT FOUND');
+
                 if (arrivalMatch) {
                     const arrLine = arrivalMatch[1];
+                    console.log('Arrival line:', arrLine);
+
                     const arrDateMatch = arrLine.match(/(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i);
-                    if (arrDateMatch) flight.arrivalDate = this.formatDate(arrDateMatch[1]);
+                    if (arrDateMatch) {
+                        flight.arrivalDate = this.formatDate(arrDateMatch[1]);
+                        console.log('Arrival date:', flight.arrivalDate);
+                    }
 
                     const arrTimeMatch = arrLine.match(/(\d{1,2}:\d{2})/);
-                    if (arrTimeMatch) flight.arrivalTime = arrTimeMatch[1];
+                    if (arrTimeMatch) {
+                        flight.arrivalTime = arrTimeMatch[1];
+                        console.log('Arrival time:', flight.arrivalTime);
+                    }
 
                     // Extract city name
                     // Match pattern: TIME AIRPORT_NAME CITY [Terminal...]
                     const arrCityMatch = arrLine.match(/(?:\d{1,2}:\d{2})\s+(.+?)(?:\s+Terminal|\s*$)/i);
+                    console.log('Arrival city match result:', arrCityMatch ? arrCityMatch[1] : 'NO MATCH');
+
                     if (arrCityMatch) {
                         let fullLocation = arrCityMatch[1].trim();
+                        console.log('Full arrival location:', fullLocation);
 
                         // Extract city from patterns like "HAZRAT SHAHJALAL INTL DHAKA" or "HAMAD INTERNATIONAL DOHA"
                         let cityMatch = fullLocation.match(/(?:INTL?|INTERNATIONAL)\s+([A-Z]+)/i);
                         if (cityMatch) {
                             flight.to = this.capitalizeCity(cityMatch[1]);
+                            console.log('To (INTL pattern):', flight.to);
                         } else {
                             // Fallback: get last capital word (e.g., "MALPENSA MILAN" -> "MILAN")
                             const words = fullLocation.split(/\s+/);
                             for (let i = words.length - 1; i >= 0; i--) {
                                 if (words[i] && /^[A-Z]{2,}$/i.test(words[i])) {
                                     flight.to = this.capitalizeCity(words[i]);
+                                    console.log('To (fallback):', flight.to);
                                     break;
                                 }
                             }
@@ -405,8 +440,10 @@ class TicketParser {
                 const baggageMatch = flightSection.match(/Baggage\s+Allowance\s+(\d+K)/i);
                 if (baggageMatch) {
                     flight.baggage = baggageMatch[1] + 'G';
+                    console.log('Baggage:', flight.baggage);
                 }
 
+                console.log('Final flight object:', JSON.stringify(flight, null, 2));
                 this.data.flights.push(flight);
             });
             return;

@@ -109,11 +109,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.flights && data.flights.length > 0) {
             data.flights.forEach((flight, index) => {
                 html += generateFlightRow(flight, data);
+            });
         } else {
-            html += `<p style="color: #6b7280; font-style: italic;">No flight information available</p>`;
+            html += `<tr><td colspan="4" style="text-align: center; color: #6b7280; font-style: italic;">No flight information available</td></tr>`;
         }
 
-        html += `</div>`;
+        html += `
+                    </tbody>
+                </table>`;
 
         // Fare Information
         html += `

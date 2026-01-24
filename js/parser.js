@@ -131,6 +131,13 @@ class TicketParser {
             /\.com/i,
             /@/,  // email addresses
             /\+\d{1,3}\s*\d/,  // phone numbers
+            /:\s*[^;]+;$/,  // CSS properties (e.g., "color: red;")
+            /var\(/,  // CSS variables
+            /\d+px/i,  // CSS pixel values
+            /\d+%/,  // CSS percentage values
+            /\d+em/i,  // CSS em values
+            /\d+rem/i,  // CSS rem values
+            /(transform|margin|padding|border|background|display|flex|grid|font|color|width|height|position|top|left|right|bottom):/i,  // CSS properties
         ];
 
         return garbagePatterns.some(pattern => pattern.test(line));
@@ -159,6 +166,14 @@ class TicketParser {
             /pnr|galileo/i,
             /ticket.*number/i,
             /^[A-Z]+$/,  // all caps single word
+            /:/,  // contains colon (CSS property)
+            /;/,  // contains semicolon (CSS)
+            /\(/,  // contains parenthesis (CSS functions)
+            /\[|\]/,  // contains brackets
+            /\{|\}/,  // contains braces
+            /var|transform|margin|padding|border|font|color|width|height|display/i,  // CSS keywords
+            /px|em|rem|%|vh|vw/i,  // CSS units
+            /#[0-9a-f]{3,6}/i,  // CSS color codes
         ];
 
         return !invalidPatterns.some(pattern => pattern.test(name));

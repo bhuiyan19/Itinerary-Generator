@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>goFLY Cost Calculator</title>
+    <link rel="stylesheet" href="css/style.css?v=20260512001">
+    <style>
+        .calc-wrap {
+            padding: 30px 40px 40px;
+        }
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        @media (max-width: 860px) {
+            .calc-grid { grid-template-columns: 1fr; }
+        }
+        .calc-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+        .calc-card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.15em;
+            color: var(--text-dark);
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-mint);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .field {
+            margin-bottom: 14px;
+        }
+        .field label {
+            display: block;
+            font-size: 0.85em;
+            color: var(--text-gray);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .field label .req { color: #ef4444; }
+        .field input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            font-size: 1em;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-white);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .field input:focus {
+            outline: none;
+            border-color: var(--primary-mint);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        }
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            margin-bottom: 10px;
+        }
+        .result-row .label {
+            color: var(--text-gray);
+            font-size: 0.92em;
+        }
+        .result-row .value {
+            font-weight: 600;
+            font-size: 1.05em;
+            color: var(--text-dark);
+            font-variant-numeric: tabular-nums;
+        }
+        .result-row.highlight {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-color: var(--primary-mint);
+        }
+        .result-row.highlight .label {
+            color: var(--mint-dark);
+            font-weight: 600;
+        }
+        .result-row.highlight .value {
+            color: var(--mint-dark);
+            font-size: 1.25em;
+        }
+        .result-row.profit {
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            border-color: var(--accent-orange);
+        }
+        .result-row.profit .label {
+            color: #c2410c;
+            font-weight: 600;
+        }
+        .result-row.profit .value {
+            color: #c2410c;
+            font-size: 1.25em;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .top-link {
+            display: inline-block;
+            margin-bottom: 14px;
+            color: var(--primary-mint);
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .top-link:hover { text-decoration: underline; }
+        .hint {
+            font-size: 0.78em;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1>goFLY Limited</h1>
+                    <p class="tagline">Ticket Cost Calculator</p>
+                </div>
+                <div class="header-info">
+                    <p>Base Fare + Tax theke Cost o Profit ber korun</p>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="calc-wrap">
+                <a class="top-link" href="index.html">&larr; Back to Itinerary Generator</a>
+
+                <div class="calc-grid">
+                    <div class="calc-card">
+                        <h3>Inputs</h3>
+
+                        <div class="field">
+                            <label>Base Fare (Buy) <span class="req">*</span></label>
+                            <input type="number" id="baseFare" step="0.01" placeholder="e.g. 114660" autofocus>
+                        </div>
+
+                        <div class="field">
+                            <label>Tax <span class="req">*</span></label>
+                            <input type="number" id="tax" step="0.01" placeholder="e.g. 111740">
+                        </div>
+
+                        <div class="row-2">
+                            <div class="field">
+                                <label>Commission %</label>
+                                <input type="number" id="commissionPct" step="0.01" value="7">
+                            </div>
+                            <div class="field">
+                                <label>AIT %</label>
+                                <input type="number" id="aitPct" step="0.01" value="0.3">
+                                <div class="hint">% of Gross Fare</div>
+                            </div>
+                        </div>
+
+                        <div class="row-2">
+                            <div class="field">
+                                <label>Discount</label>
+                                <input type="number" id="discount" step="0.01" value="0">
+                            </div>
+                            <div class="field">
+                                <label>Extra Fee</label>
+                                <input type="number" id="extraFee" step="0.01" value="0">
+                            </div>
+                        </div>
+
+                        <div class="row-2">
+                            <div class="field">
+                                <label>Other Expense</label>
+                                <input type="number" id="otherExpense" step="0.01" value="0">
+                            </div>
+                            <div class="field">
+                                <label>Other Bonus</label>
+                                <input type="number" id="otherBonus" step="0.01" value="0">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Client Price (Sale)</label>
+                            <input type="number" id="clientPrice" step="0.01" placeholder="default: Gross Fare">
+                            <div class="hint">Khali rakhle Gross Fare hisebe nibe</div>
+                        </div>
+
+                        <div class="btn-row">
+                            <button class="btn btn-primary" id="calcBtn">Calculate</button>
+                            <button class="btn btn-secondary" id="resetBtn">Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="calc-card">
+                        <h3>Results</h3>
+
+                        <div class="result-row">
+                            <span class="label">Gross Fare (Base + Tax)</span>
+                            <span class="value" id="rGross">0.00</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="label">Commission Amount</span>
+                            <span class="value" id="rCommission">0.00</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="label">AIT</span>
+                            <span class="value" id="rAit">0.00</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="label">Net Commission</span>
+                            <span class="value" id="rNetCommission">0.00</span>
+                        </div>
+                        <div class="result-row highlight">
+                            <span class="label">Purchase Price (Cost)</span>
+                            <span class="value" id="rCost">0.00</span>
+                        </div>
+                        <div class="result-row">
+                            <span class="label">Client Price (Sale)</span>
+                            <span class="value" id="rClient">0.00</span>
+                        </div>
+                        <div class="result-row profit">
+                            <span class="label">Profit</span>
+                            <span class="value" id="rProfit">0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const ids = ['baseFare', 'tax', 'commissionPct', 'aitPct', 'discount',
+                     'extraFee', 'otherExpense', 'otherBonus', 'clientPrice'];
+
+        const num = (id) => {
+            const v = parseFloat(document.getElementById(id).value);
+            return isNaN(v) ? 0 : v;
+        };
+
+        const fmt = (n) => n.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        function calculate() {
+            const base = num('baseFare');
+            const tax = num('tax');
+            const commPct = num('commissionPct');
+            const aitPct = num('aitPct');
+            const discount = num('discount');
+            const extraFee = num('extraFee');
+            const otherExpense = num('otherExpense');
+            const otherBonus = num('otherBonus');
+
+            const gross = base + tax;
+            const commission = base * (commPct / 100);
+            const ait = gross * (aitPct / 100);
+            const netCommission = commission - ait;
+
+            const cost = gross - netCommission + extraFee + otherExpense - otherBonus;
+
+            const clientInput = document.getElementById('clientPrice').value;
+            const clientPrice = clientInput === '' ? gross - discount : parseFloat(clientInput);
+
+            const profit = clientPrice - cost;
+
+            document.getElementById('rGross').textContent = fmt(gross);
+            document.getElementById('rCommission').textContent = fmt(commission);
+            document.getElementById('rAit').textContent = fmt(ait);
+            document.getElementById('rNetCommission').textContent = fmt(netCommission);
+            document.getElementById('rCost').textContent = fmt(cost);
+            document.getElementById('rClient').textContent = fmt(clientPrice);
+            document.getElementById('rProfit').textContent = fmt(profit);
+        }
+
+        ids.forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+        });
+
+        document.getElementById('calcBtn').addEventListener('click', calculate);
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('baseFare').value = '';
+            document.getElementById('tax').value = '';
+            document.getElementById('commissionPct').value = '7';
+            document.getElementById('aitPct').value = '0.3';
+            document.getElementById('discount').value = '0';
+            document.getElementById('extraFee').value = '0';
+            document.getElementById('otherExpense').value = '0';
+            document.getElementById('otherBonus').value = '0';
+            document.getElementById('clientPrice').value = '';
+            calculate();
+            document.getElementById('baseFare').focus();
+        });
+
+        calculate();
+    </script>
+</body>
+</html>
